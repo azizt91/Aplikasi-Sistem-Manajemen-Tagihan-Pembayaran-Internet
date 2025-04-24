@@ -1,0 +1,17 @@
+{
+    "name": "BayarDong",
+    "short_name": "BayarDong",
+    "start_url": "\/index.php",
+    "background_color": "#6777ef",
+    "description": "Sistem Manajemen Tagihan Pembayaran Internet",
+    "display": "fullscreen",
+    "theme_color": "#6777ef",
+    "icons": [
+        {
+            "src": "\/storage\/logos\/zTu5YWfFIireghPG4Fx2TfJS1Oq7dKxQ5LetArgc.png",
+            "sizes": "512x512",
+            "type": "image\/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
