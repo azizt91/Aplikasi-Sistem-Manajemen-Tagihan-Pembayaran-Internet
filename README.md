@@ -4,48 +4,75 @@
 
 Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermudah proses pengelolaan dan pembayaran tagihan internet. Aplikasi ini dibuat menggunakan Laravel v10.* dan minimal PHP v8.2 jadi apabila pada saat proses instalasi atau penggunaan terdapat error atau bug kemungkinan karena versi dari PHP yang tidak support.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-## langkah-langkah 
-ketikan perintah berikut ini
-```bash
-$ composer install 
-$ composer update 
-$ php artisan migrate:fresh --seed 
-$ php artisan serv 
-selamat anda bisa akses laravel nya ok 
-```
+### **Persyaratan Sistem**
+- PHP minimal versi **8.2**  
+- Sudah terinstal **XAMPP** atau perangkat sejenis  
+  [Download XAMPP di sini](https://www.apachefriends.org/download.html)  
+- Composer telah terinstal di komputer  
+  [Unduh Composer di sini](https://getcomposer.org/download/)  
 
-untuk usernya 
-midas@gmail.com
-12345678
+---
 
-## Learning Laravel
+### **Langkah Instalasi**
+1. **Clone repository**:
+   ```bash
+   git clone https://github.com/azizt91/Aplikasi-Sistem-Manajemen-Tagihan-Pembayaran-Internet.git
+   ```
+2. **Masuk ke folder proyek**:
+   ```bash
+   cd Aplikasi-Sistem-Manajemen-Tagihan-Pembayaran-Internet
+   ```
+3. **Instal dependensi Laravel menggunakan Composer**:
+   ```bash
+   composer install
+   ```
+4. **Buat file `.env` dari contoh**:
+   ```bash
+   cp .env.example .env
+   ```
+5. **Buat database baru di phpMyAdmin**:
+   - Masuk ke phpMyAdmin dan buat database baru sesuai kebutuhan.
+   - Import file SQL dari folder `db/laravel10.sql` ke dalam database.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+6. **Sesuaikan konfigurasi database di file `.env`**:
+   Edit baris berikut di file `.env` agar sesuai dengan database yang telah kamu buat:
+   ```env
+   DB_PORT=3306
+   DB_DATABASE=laravel
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+7. **Generate Application Key**:
+   ```bash
+   php artisan key:generate
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+8. **Tambah user admin melalui seeder**:
+   Jalankan perintah berikut untuk menambahkan user admin:
+   ```bash
+   php artisan db:seed --class=NamaSeeder
+   ```
 
-## Laravel Sponsors
+9. **Jalankan aplikasi**:
+   ```bash
+   php artisan serve
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Selamat, aplikasi siap diakses! 😊  
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### **Login Admin**
+- **Email**: youremail@gmail.com  
+- **Password**: password123  
+
+---
+
+### **Catatan**
+- **Tambahkan Data Paket Terlebih Dahulu**: Sebelum menambahkan pelanggan, pastikan kamu sudah menambahkan data paket.  
+- **Email dan Password Pelanggan**: Email dan password untuk login pelanggan akan otomatis dibuat saat menambahkan data pelanggan.
+
 
 ## Contributing
 
