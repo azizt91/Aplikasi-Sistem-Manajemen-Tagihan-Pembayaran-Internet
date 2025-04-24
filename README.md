@@ -1,8 +1,25 @@
 # Aplikasi Sistem Manajemen Tagihan Pembayaran Internet
 
-## Tentang Aplikasi
-
 Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermudah proses pengelolaan dan pembayaran tagihan internet. Aplikasi ini dibuat menggunakan Laravel v10.* dan minimal PHP v8.2 jadi apabila pada saat proses instalasi atau penggunaan terdapat error atau bug kemungkinan karena versi dari PHP yang tidak support.
+
+---
+
+### **Fitur yang Tersedia**
+- **Dashboard Admin:** Berisi semua informasi seperti fitur filter berdasarkan bulan dan tahun maka akan menampilkan prndapatan, pengeluaran, total profit dsb.
+- **Manajemen Paket Internet:** Kelola informasi paket layanan.
+- **Manajemen Pelanggan:** Tambah, edit, dan hapus data pelanggan.
+- **Autogenerate Akun Pelanggan:** Email dan password pelanggan dibuat otomatis saat data pelanggan ditambahkan.
+- **Buat Tagihan:** Buat tagihan otomatis semua pelanggan berdasarkan bulan dan tahun
+- **Lihat Tagihan:** Buka data tagihan berdasarkan bulan dan tahun
+- **Tagihan Lunas:** Menampilkan tagihan lunas semua pelanggan.
+- **Rekening Bank:** Tambah, edit, dan hapus data rekening bank atau e-wallet.
+- **Manajemen Pengguna Sistem:** Tambah, edit, dan hapus data pengguna sistem.
+- **Manajemen Pengeluaran:** Tambah, edit, dan hapus data pengeluaran.
+- **Konfigurasi Tripay:** Untuk mengkonfigurasikan data Payment Gateway Tripay.
+- **Setting:** Untuk merubah icon vavicon atau icon aplikasi, merubah nama aplikasi dsb.
+- **Role Admin:** Akses fitur khusus untuk pengelolaan aplikasi secara penuh.
+
+---
 
 ### **Persyaratan Sistem**
 - PHP minimal versi **8.2**  
@@ -73,19 +90,16 @@ Selamat, aplikasi siap diakses! 😊
 - **Tambahkan Data Paket Terlebih Dahulu**: Sebelum menambahkan pelanggan, pastikan kamu sudah menambahkan data paket.  
 - **Email dan Password Pelanggan**: Email dan password untuk login pelanggan akan otomatis dibuat saat menambahkan data pelanggan.
 
+---
 
-## Contributing
+### **Author**
+- Facebook : [Taufiq Aziz](https://www.facebook.com/azizt91) 
+- Instagram : [Taufiq Aziz](https://www.instagram.com/azizt91) 
+- Threads : [Taufiq Aziz](https://www.threads.net/@azizt91) 
+- YouTube : [Taufiq Aziz](https://youtube.com/@taufiqaziz1691) 
+- X : [Taufiq Aziz](https://x.com/azizt91)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
 ## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+[MIT license](https://opensource.org/licenses/MIT).
