@@ -14,6 +14,7 @@ use App\Http\Controllers\Payment\TripayController;
 use App\Http\Controllers\TripayCallbackController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\LaporanController;
 use App\Exports\TagihanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
@@ -134,6 +135,9 @@ Route::resource('pengeluaran', PengeluaranController::class)->except(['show']);
 
 Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
 Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+Route::post('/laporan/export', [LaporanController::class, 'export']);
 
 
 
