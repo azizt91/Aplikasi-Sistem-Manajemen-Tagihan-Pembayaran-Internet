@@ -128,6 +128,13 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->is('laporan*') ? 'active' : '' }}">
+            <a href="{{ route('laporan.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+                <div class="text-truncate" data-i18n="Laporan">Laporan</div>
+            </a>
+        </li>
+
         <li class="menu-item {{ request()->is('settings*') ? 'active' : '' }}">
             <a href="{{ route('settings.edit') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
