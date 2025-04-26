@@ -14,6 +14,14 @@
     </div>
 
     <ul class="navbar-nav flex-row align-items-center ms-auto">
+
+        <!-- Donate Button -->
+            <div class="ms-auto me-3 d-flex align-items-center">
+                <a class="nav-link" href="https://saweria.co/azizt91" target="_blank">
+                    <img src="/sneat/assets/img/icons/brands/donate.png" alt="Saweria" style="height: 60px !important;" class="img-fluid">
+                </a>
+            </div>
+        
         <span class="mr-2 d-none d-lg-inline text-gray-600 small">
             {{ auth()->user()->nama ?? '' }}
             <br>
