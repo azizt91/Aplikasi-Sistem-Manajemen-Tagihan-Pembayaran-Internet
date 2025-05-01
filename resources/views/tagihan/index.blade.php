@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="table-responsive text-nowrap">
-                    <table id="example" class="table table-sm">
+                    <table id="" class="table table-sm">
                         <thead>
                             <tr>
                                 <th>No</th>
