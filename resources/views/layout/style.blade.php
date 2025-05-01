@@ -42,4 +42,23 @@
         }
     </style>
 
+    <style>
+        .donate-button {
+            position: fixed;
+            bottom: 20px; /* Jarak dari bawah */
+            right: 20px; /* Jarak dari kanan */
+            z-index: 1000; /* Agar selalu di atas elemen lain */
+        }
+
+        .donate-button img {
+            height: 60px !important;
+            width: auto;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .donate-button img:hover {
+            transform: scale(1.1); /* Efek zoom saat hover */
+        }
+    </style>
+
 </head>
