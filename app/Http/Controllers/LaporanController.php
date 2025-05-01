@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\DB; // Mengimpor DB untuk menggunakan DB::raw
 use Maatwebsite\Excel\Facades\Excel; // Impor untuk eksport ke excel
 use App\Exports\LaporanExport;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
+
     public function index(Request $request)
     {
         $tanggal_awal = $request->tanggal_awal;
@@ -20,37 +22,36 @@ class LaporanController extends Controller
         // Mengambil pemasukan (tagihan lunas)
         $pemasukan = Tagihan::join('pelanggan', 'pelanggan.id_pelanggan', '=', 'tagihan.id_pelanggan')
             ->where('tagihan.status', 'LS')
-            ->whereBetween('tagihan.tgl_bayar', [$tanggal_awal, $tanggal_akhir])  // Pastikan filter tanggal diterapkan dengan benar
-            ->orderBy('tagihan.tgl_bayar', 'asc')
+            ->whereBetween('tagihan.tgl_bayar', [$tanggal_awal, $tanggal_akhir])
             ->get([
                 'tagihan.tgl_bayar as tanggal',
-                DB::raw('CONCAT("Pembayaran ", pelanggan.nama) as keterangan'),
-                'tagihan.tagihan as jumlah'  // Menggunakan kolom 'tagihan' untuk jumlah
-            ]);
+                'pelanggan.nama',
+                'tagihan.bulan',  // Ambil bulan dari database
+                'tagihan.tahun',  // Ambil tahun dari database
+                'tagihan.tagihan as jumlah'
+            ])->map(function ($item) {
+                // Format bulan dan tahun langsung dari kolom bulan & tahun
+                $bulan_tahun = Carbon::create($item->tahun, $item->bulan, 1)->translatedFormat('F Y');
 
-        // Menambahkan nomor urut secara manual
-        $pemasukan = $pemasukan->map(function ($item, $index) {
-            $item->nomor = $index + 1;  // Menambahkan nomor urut dimulai dari 1
-            return $item;
-        });
+                // Perbaiki keterangan dengan bulan dan tahun
+                $item->keterangan = "Pembayaran {$bulan_tahun} {$item->nama}";
+                $item->tipe = 'Pemasukan';
+                return $item;
+            });
 
         // Mengambil pengeluaran
         $pengeluaran = Pengeluaran::whereBetween('tanggal', [$tanggal_awal, $tanggal_akhir])
-            ->orderBy('tanggal', 'asc')
             ->get([
                 'tanggal',
                 'deskripsi as keterangan',
                 'jumlah'
-            ]);
+            ])->map(function ($item) {
+                $item->tipe = 'Pengeluaran';
+                return $item;
+            });
 
-        // Gabungkan data pemasukan dan pengeluaran
-        $data = $pemasukan->map(function ($item) {
-            $item->tipe = 'Pemasukan';
-            return $item;
-        })->concat($pengeluaran->map(function ($item) {
-            $item->tipe = 'Pengeluaran';
-            return $item;
-        }));
+        // Gabungkan dan urutkan berdasarkan tanggal
+        $data = $pemasukan->concat($pengeluaran)->sortBy('tanggal')->values();
 
         // Hitung total pemasukan, pengeluaran, dan profit
         $totalPemasukan = $pemasukan->sum('jumlah');
@@ -75,6 +76,11 @@ class LaporanController extends Controller
         return Excel::download(new LaporanExport($request->tanggal_awal, $request->tanggal_akhir), $fileName);
     }
 }
+
+
+
+
+
 
 
 
