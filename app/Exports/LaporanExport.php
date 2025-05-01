@@ -68,8 +68,15 @@ class LaporanExport implements FromCollection, WithHeadings
         $data = $pemasukan->concat($pengeluaran)->sortBy('tanggal')->values();
 
         // Hitung total pemasukan, pengeluaran, dan profit
-        $totalPemasukan = $pemasukan->sum(fn($item) => (int)str_replace(['Rp ', '.'], '', $item->pemasukan));
-        $totalPengeluaran = $pengeluaran->sum(fn($item) => (int)str_replace(['Rp ', '.'], '', $item->pengeluaran));
+        // $totalPemasukan = $pemasukan->sum(fn($item) => (int)str_replace(['Rp ', '.'], '', $item->pemasukan));
+        // $totalPengeluaran = $pengeluaran->sum(fn($item) => (int)str_replace(['Rp ', '.'], '', $item->pengeluaran));
+        $totalPemasukan = $pemasukan->sum(function($item) {
+            return (int) str_replace(['Rp ', '.'], '', $item->pemasukan);
+        });
+
+        $totalPengeluaran = $pengeluaran->sum(function($item) {
+            return (int) str_replace(['Rp ', '.'], '', $item->pengeluaran);
+        });
         $profit = $totalPemasukan - $totalPengeluaran;
 
         // Tambahkan baris total pemasukan dan pengeluaran dengan format Rp
