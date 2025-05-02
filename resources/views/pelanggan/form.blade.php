@@ -48,7 +48,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-6">
+<!--                         <div class="mb-6">
                             <label class="form-label" for="status">Status</label>
                             <select name="status" id="status" class="form-select">
                                 <option value="" selected disabled hidden>-- Pilih Status --</option>
@@ -58,7 +58,17 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div> -->
+                        <!-- Tampilkan kolom Status hanya saat edit pelanggan -->
+                        @isset($pelanggan)
+                            <div class="mb-6">
+                                <label class="form-label" for="status">Status</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="aktif" {{ isset($pelanggan) && $pelanggan->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="nonaktif" {{ isset($pelanggan) && $pelanggan->status == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                                </select>
+                            </div>
+                        @endisset
                         <div class="mb-6">
                             <label class="form-label" for="jatuh_tempo">Jatuh Tempo</label>
                             <input type="text" class="form-control" id="jatuh_tempo" name="jatuh_tempo" placeholder="Contoh:Tanggal 20" value="{{ isset($pelanggan) ? $pelanggan->jatuh_tempo : '' }}">
