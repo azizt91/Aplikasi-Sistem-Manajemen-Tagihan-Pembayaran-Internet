@@ -39,38 +39,6 @@ class PelangganController extends Controller
 		return view('pelanggan.nonaktif', compact('pelanggan'));
 	}
 
-	// public function tambah()
-	// {
-	// 	$paket = Paket::get();
-	// 	$status = ['aktif', 'nonaktif'];
-	// 	return view('pelanggan.form', compact('paket', 'status'));
-	// }
-
-	// public function simpan(Request $request)
-	// {
-
-	// 	$pass_acak = "12345678";
-
-	// 	$data = [
-	// 		'id_pelanggan' => $request->id_pelanggan,
-	// 		'nama' => $request->nama,
-	// 		'alamat' => $request->alamat,
-	// 		'whatsapp' => $request->whatsapp,
-	// 		'email' => $request->email,
-	// 		'password' => $pass_acak,
-	// 		'password_hash' => Hash::make($pass_acak),
-	// 		'level' => 'User',
-	// 		'id_paket' => $request->id_paket,
-	// 		'jatuh_tempo' => $request->jatuh_tempo,
-    //         'tanggal_pasang' => $request->tanggal_pasang,
-	// 		'status' => $request->status,
-
-	// 	];
-
-	// 	Pelanggan::create($data);
-	// 	Alert::toast('Data berhasil disimpan','success');
-	// 	return redirect()->route('pelanggan');
-	// }
 
     public function tambah()
     {
@@ -84,7 +52,7 @@ class PelangganController extends Controller
         $email = 'cst' . ($lastEmailNumber + 1) . '@mail.com';
 
         $paket = Paket::get();
-        $status = ['aktif', 'nonaktif'];
+        $status = 'aktif';
 
         return view('pelanggan.form', compact('paket', 'status', 'id_pelanggan', 'email'));
     }
@@ -122,7 +90,7 @@ class PelangganController extends Controller
         'id_paket' => $request->id_paket,
         'jatuh_tempo' => $request->jatuh_tempo,
         'tanggal_pasang' => $request->tanggal_pasang,
-        'status' => $request->status,
+        'status' => $request->status ?? 'aktif',
     ];
 
     Pelanggan::create($data);
@@ -141,11 +109,9 @@ class PelangganController extends Controller
 	public function update($id_pelanggan, Request $request)
 	{
 		$data = [
-			'id_pelanggan' => $request->id_pelanggan,
 			'nama' => $request->nama,
 			'alamat' => $request->alamat,
 			'whatsapp' => $request->whatsapp,
-			'email' => $request->email,
 			'id_paket' => $request->id_paket,
 			'jatuh_tempo' => $request->jatuh_tempo,
             'tanggal_pasang' => $request->tanggal_pasang,
