@@ -48,17 +48,6 @@
                                 @endforeach
                             </select>
                         </div>
-<!--                         <div class="mb-6">
-                            <label class="form-label" for="status">Status</label>
-                            <select name="status" id="status" class="form-select">
-                                <option value="" selected disabled hidden>-- Pilih Status --</option>
-                                @foreach ($status as $option)
-                                    <option value="{{ $option }}" {{ isset($pelanggan) && $pelanggan->status == $option ? 'selected' : '' }}>
-                                        {{ ucfirst($option) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div> -->
                         <!-- Tampilkan kolom Status hanya saat edit pelanggan -->
                         @isset($pelanggan)
                             <div class="mb-6">
