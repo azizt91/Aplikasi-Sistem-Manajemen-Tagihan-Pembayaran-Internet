@@ -25,7 +25,7 @@
     {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
     <script src="{{ asset('sneat') }}/assets/vendor/js/helpers.js"></script>
     <script src="{{ asset('sneat') }}/assets/js/config.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
     <style>
         .spinner-wrapper {
             background-color: #f8fafc;
