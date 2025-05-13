@@ -16,6 +16,8 @@ use App\Http\Controllers\BankController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\LaporanController;
 use App\Exports\TagihanExport;
+use App\Http\Controllers\FonnteController;
+use App\Http\Controllers\FonnteNotificationController;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -138,6 +140,15 @@ Route::put('/settings', [SettingController::class, 'update'])->name('settings.up
 
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 Route::post('/laporan/export', [LaporanController::class, 'export']);
+
+Route::get('/fonnte', [FonnteController::class, 'index'])->name('fonnte.index');
+Route::post('/fonnte/store-token', [FonnteController::class, 'storeToken'])->name('fonnte.storeToken');
+Route::delete('/fonnte/delete', [FonnteController::class, 'deleteToken'])->name('fonnte.deleteToken');
+Route::post('/fonnte/send-message', [FonnteController::class, 'sendMessage'])->name('fonnte.sendMessage');
+
+Route::get('/fonnte/notification', [FonnteNotificationController::class, 'index'])->name('fonnte.notification.index');
+Route::post('/fonnte/notification/save-settings', [FonnteNotificationController::class, 'saveSettings'])->name('fonnte.notification.saveSettings');
+Route::post('/fonnte/notification/send', [FonnteNotificationController::class, 'sendNotifications'])->name('fonnte.notification.send');
 
 
 
