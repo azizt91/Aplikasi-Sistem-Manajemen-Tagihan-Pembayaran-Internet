@@ -1,18 +1,5 @@
 <?php
 
-// namespace App\Http\Controllers;
-
-// use App\Models\User;
-// use Illuminate\Http\Request;
-
-// class UserController extends Controller
-// {
-//     public function index(){
-
-//         return view('user.index');
-//     }
-// }
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -65,7 +52,7 @@ class UserController extends Controller
         }
 
         User::create($data);
-        Alert::toast('User created successfully!', 'success');
+        Alert::success('Sukses', 'User berhasil dibuat');
         return redirect()->route('users.index');
     }
 
@@ -114,7 +101,7 @@ class UserController extends Controller
         }
 
         $user->save();
-        Alert::toast('User updated successfully!', 'success');
+        Alert::success('Sukses', 'User berhasil diedit');
         return redirect()->route('users.index');
     }
 
@@ -128,7 +115,7 @@ class UserController extends Controller
         }
 
         $user->delete();
-        Alert::toast('User deleted successfully!', 'success');
+        Alert::success('Sukses', 'User berhasil dihapus');
         return redirect()->route('users.index');
     }
 }
