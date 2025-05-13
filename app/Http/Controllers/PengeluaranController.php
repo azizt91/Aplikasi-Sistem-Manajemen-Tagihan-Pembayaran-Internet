@@ -44,7 +44,7 @@ class PengeluaranController extends Controller
 
         Pengeluaran::create($request->all());
 
-        Alert::toast('Pengeluaran berhasil ditambahkan', 'success');
+        Alert::success('Sukses', 'Pengeluaran berhasil ditambahkan');
         return redirect()->route('pengeluaran.index');
     }
 
@@ -63,7 +63,7 @@ class PengeluaranController extends Controller
 
         $pengeluaran->update($request->all());
 
-        Alert::toast('Pengeluaran berhasil diupdate', 'success');
+        Alert::success('Sukses', 'Pengeluaran berhasil diupdate');
         return redirect()->route('pengeluaran.index');
     }
 
@@ -71,7 +71,7 @@ class PengeluaranController extends Controller
     {
         $pengeluaran->delete();
 
-        Alert::toast('Pengeluaran berhasil dihapus', 'success');
+        Alert::success('Sukses', 'Pengeluaran berhasil dihapus');
         return redirect()->route('pengeluaran.index');
     }
 }
