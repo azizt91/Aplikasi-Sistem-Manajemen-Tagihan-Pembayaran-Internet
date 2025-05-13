@@ -56,7 +56,7 @@ class PaketController extends Controller
 		];
 
 		Paket::create($data);
-		Alert::toast('Data berhasil disimpan','success');
+		Alert::success('Sukses', 'Data berhasil disimpan');
 		return redirect()->route('paket');
 	}
 
@@ -92,7 +92,7 @@ class PaketController extends Controller
             'tarif' => $request->tarif,
         ]);
 
-        Alert::toast('Paket berhasil di edit','success');
+        Alert::success('Sukses', 'Paket berhasil di edit');
         return redirect()->route('paket');
     }
 
@@ -103,9 +103,9 @@ class PaketController extends Controller
 
         if ($paket) {
             $paket->delete();
-            Alert::toast('Data Berhasil Dihapus','success');
+            Alert::success('Sukses', 'Paket berhasil dihapus');
         } else {
-            Alert::toast('Data tidak ditemukan','error');
+            Alert::error('Error', 'Paket tidak ditemukan');
         }
 
         return redirect()->route('paket');
