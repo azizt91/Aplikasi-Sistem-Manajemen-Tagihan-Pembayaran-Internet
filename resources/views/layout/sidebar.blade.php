@@ -135,6 +135,27 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->routeIs('fonnte.*') ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bxl-whatsapp"></i>
+                <div data-i18n="WhatsApp Gateway">WhatsApp Gateway</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('fonnte.index') ? 'active' : '' }}">
+                    <a href="{{ route('fonnte.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-key"></i>
+                        <div data-i18n="Pengaturan Token">Pengaturan Token</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('fonnte.notification.index') ? 'active' : '' }}">
+                    <a href="{{ route('fonnte.notification.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bxl-whatsapp"></i>
+                        <div data-i18n="Notification">Notif Pelanggan</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         <li class="menu-item {{ request()->is('settings*') ? 'active' : '' }}">
             <a href="{{ route('settings.edit') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
