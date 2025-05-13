@@ -22,40 +22,6 @@ class PelangganAuthController extends Controller
         return view('auth.pelanggan-login');
     }
 
-    // public function login(Request $request)
-    // {
-    //     // Mendapatkan nilai email dari cookie jika tersedia
-    //     $rememberedEmail = $request->cookie('remembered_email');
-
-    //     $request->validate([
-    //         'email' => 'required|email',
-    //         'password' => 'required',
-    //     ]);
-
-    //     // Cari pengguna berdasarkan alamat email
-    //     $pelanggan = Pelanggan::where('email', $request->email)->first();
-
-    //     // Periksa apakah pengguna ditemukan dan password sesuai
-    //     if ($pelanggan) {
-    //         // Jika sesuai, verifikasi password
-    //         if ($pelanggan->password === $request->password) {
-    //             // Lakukan proses login
-    //             Auth::guard('pelanggan')->login($pelanggan);
-
-    //             // Membersihkan cookie yang menyimpan nilai email setelah berhasil login
-    //             return redirect()->route('dashboard-pelanggan')
-    //             ->withCookie(Cookie::forget('remembered_email'));
-    //         }
-    //     }
-
-    //     // Jika tidak sesuai, kembalikan ke halaman login dengan pesan error
-    //     return redirect()->route('login')
-    //     ->withErrors(['email' => 'These credentials do not match our records.'])
-    //     ->withInput($request->only('email'))
-    //     // Mengatur cookie yang menyimpan nilai email
-    //     ->withCookie(cookie()->forever('remembered_email', $rememberedEmail));
-    // }
-
     public function login(Request $request)
     {
         // Ambil email yang lama (jika ada)
