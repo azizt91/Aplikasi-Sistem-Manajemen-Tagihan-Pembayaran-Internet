@@ -33,6 +33,9 @@
                             <label class="form-label" for="whatsapp">WhatsApp</label>
                             <input type="text" class="form-control" id="whatsapp" name="whatsapp" placeholder="Masukkan Nomor WhatsApp Pelanggan" value="{{ isset($pelanggan) ? $pelanggan->whatsapp : '' }}">
                         </div>
+                        @error('whatsapp')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                         {{-- <div class="mb-6">
                             <label class="form-label" for="email">Email</label>
                             <input type="text" class="form-control" id="email" name="email" value="{{ isset($pelanggan) ? $pelanggan->email : '' }}">
