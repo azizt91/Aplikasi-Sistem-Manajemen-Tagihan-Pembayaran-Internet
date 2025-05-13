@@ -71,6 +71,12 @@ Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermuda
    php artisan db:seed --class=NamaSeeder
    ```
 
+8. **Membuat symlink (symbolic link)**:
+   Agar file bisa di akses dari URL publik
+   ```bash
+   php artisan storage:link
+   ```
+
 9. **Jalankan aplikasi**:
    ```bash
    php artisan serve
