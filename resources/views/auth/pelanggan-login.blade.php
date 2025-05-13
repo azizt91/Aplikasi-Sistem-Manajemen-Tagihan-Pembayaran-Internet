@@ -88,9 +88,8 @@
                 </a>
               </div>
               <!-- /Logo -->
-              {{-- <h4 class="mb-2">Welcome to Selinggonet! 👋</h4> --}}
               <h4 class="mb-2">Welcome to {{ settings('app_name_pelanggan') }}! 👋</h4>
-              <p class="mb-4">Please Log-in to your account and start the adventure</p>
+              <p class="mb-4">Sistem Manajemen Tagihan Pembayaran Internet</p>
 
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('pelanggan.login') }}" onsubmit="return validateForm()">
                 @csrf
