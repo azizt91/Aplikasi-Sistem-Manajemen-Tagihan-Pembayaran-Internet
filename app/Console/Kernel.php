@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('fonnte:send-notifications')->dailyAt('08:00'); // Kirim setiap hari jam 08:00
     }
 
     /**
