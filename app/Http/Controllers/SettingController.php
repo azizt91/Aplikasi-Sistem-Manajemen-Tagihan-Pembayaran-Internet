@@ -86,7 +86,7 @@ class SettingController extends Controller
             }
             File::put(public_path('manifest.json'), json_encode($manifest, JSON_PRETTY_PRINT));
 
-            Alert::toast('Pengaturan berhasil diperbarui', 'success');
+            Alert::success('Sukses', 'Pengaturan berhasil diperbarui');
             return redirect()->route('settings.edit');
         }
     }
