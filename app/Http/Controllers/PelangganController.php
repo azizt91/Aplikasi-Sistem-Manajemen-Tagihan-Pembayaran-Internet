@@ -18,8 +18,6 @@ class PelangganController extends Controller
 
 	public function index()
 	{
-        // $pelanggan = Pelanggan::with('paket')->paginate(1000);
-        // return view('pelanggan.index', compact('pelanggan'));
         $pelanggan = Pelanggan::all();
         $paket = Paket::all();
         $status = ['aktif', 'nonaktif'];
@@ -73,6 +71,9 @@ class PelangganController extends Controller
         if (!Str::startsWith($whatsapp, '62')) {
             $whatsapp = '62' . ltrim($whatsapp, '0');
     }
+        $request->validate([
+        'whatsapp' => 'required|unique:pelanggan,whatsapp',
+        ]);//new
 
     // Password acak
     $pass_acak = "12345678";
@@ -94,7 +95,7 @@ class PelangganController extends Controller
     ];
 
     Pelanggan::create($data);
-    Alert::toast('Data berhasil disimpan', 'success');
+    Alert::success('Sukses', 'Data berhasil disimpan');
     return redirect()->route('pelanggan');
     }
 
@@ -108,7 +109,11 @@ class PelangganController extends Controller
 
 	public function update($id_pelanggan, Request $request)
 	{
-		$data = [
+		$request->validate([
+            'whatsapp' => 'required|unique:pelanggan,whatsapp,' . $id_pelanggan . ',id_pelanggan',
+        ]);//new
+        
+        $data = [
 			'nama' => $request->nama,
 			'alamat' => $request->alamat,
 			'whatsapp' => $request->whatsapp,
@@ -119,7 +124,7 @@ class PelangganController extends Controller
 		];
 
 		Pelanggan::where('id_pelanggan', $id_pelanggan)->update($data);
-		Alert::toast('Data berhasil diedit', 'success');
+		Alert::success('Sukses', 'Data berhasil diedit');
 		return redirect()->route('pelanggan');
 	}
 
@@ -130,9 +135,9 @@ class PelangganController extends Controller
 
 		if ($pelanggan) {
 			$pelanggan->delete();
-			Alert::toast('Data Berhasil Dihapus','success');
+			Alert::success('Sukses', 'Tagihan berhasil dihapus');
 		} else {
-			Alert::toast('Data tidak ditemukan','error');
+			Alert::error('Error', 'Data tidak ditemukan');
 		}
 
 		return redirect()->route('pelanggan');
