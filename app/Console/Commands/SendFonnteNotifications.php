@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Http\Controllers\FonnteController;
+use App\Http\Controllers\FonnteNotificationController;
 
 
 class SendFonnteNotifications extends Command
@@ -13,7 +13,7 @@ class SendFonnteNotifications extends Command
 
     public function handle()
     {
-        $controller = new FonnteController();
+        $controller = new FonnteNotificationController();
         $controller->sendNotifications();
 
         $this->info('Pesan otomatis telah dikirim!');
