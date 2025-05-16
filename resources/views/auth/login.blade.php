@@ -191,6 +191,15 @@
                     Log in
                 </button>
             </form>
+                
+                <p class="text-center">
+                <span>New on our platform?</span>
+                @if (Route::has('register'))
+                <a href="{{ route('register') }}">
+                    <span>Create an account</span>
+                </a>
+                 @endif
+            </p>
 
             </div>
           </div>
