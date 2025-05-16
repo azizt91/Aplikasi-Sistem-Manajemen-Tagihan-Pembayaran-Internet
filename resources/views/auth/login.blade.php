@@ -151,8 +151,8 @@
                 <div class="mb-3 form-password-toggle">
                     <div class="d-flex justify-content-between">
                         <label class="form-label" for="password">Password</label>
-                        @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}">
+                        @if (Route::has('password.manual.form'))
+                            <a href="{{ route('password.manual.form') }}">
                                 <small>Forgot Password?</small>
                             </a>
                         @endif
