@@ -144,6 +144,7 @@ Route::put('/settings', [SettingController::class, 'update'])->name('settings.up
 
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 Route::post('/laporan/export', [LaporanController::class, 'export']);
+Route::post('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');
 
 Route::get('/fonnte', [FonnteController::class, 'index'])->name('fonnte.index');
 Route::post('/fonnte/store-token', [FonnteController::class, 'storeToken'])->name('fonnte.storeToken');
