@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ManualResetController extends Controller
 {
@@ -26,7 +27,8 @@ class ManualResetController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return redirect()->route('login')->with('status', 'Password berhasil direset.');
+        Alert::success('Sukses', 'Password berhasil direset.');
+        return redirect()->route('login');
     }
 }
 
