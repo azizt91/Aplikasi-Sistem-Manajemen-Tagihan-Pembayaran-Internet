@@ -9,12 +9,29 @@
             <h5 class="m-0 font-weight-bold text-primary">Laporan Keuangan</h5>
 
             <!-- Export to Excel Button -->
-            <form action="/laporan/export" method="POST" class="mt-3">
-                @csrf
-                <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal }}">
-                <input type="hidden" name="tanggal_akhir" value="{{ $tanggal_akhir }}">
-                <button type="submit" class="btn btn-primary rounded-pill text-body-end">Export to Excel</button>
-            </form>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Export Laporan
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <form action="{{ route('laporan.export.pdf') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal }}">
+                            <input type="hidden" name="tanggal_akhir" value="{{ $tanggal_akhir }}">
+                            <button type="submit" class="dropdown-item text-danger">Export to PDF</button>
+                        </form>
+                    </li>
+                    <li>
+                        <form action="/laporan/export" method="POST">
+                            @csrf
+                            <input type="hidden" name="tanggal_awal" value="{{ $tanggal_awal }}">
+                            <input type="hidden" name="tanggal_akhir" value="{{ $tanggal_akhir }}">
+                            <button type="submit" class="dropdown-item text-primary">Export to Excel</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
         <div class="card-body">
 
