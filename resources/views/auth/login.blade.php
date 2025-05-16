@@ -203,7 +203,7 @@
 
             </div>
           </div>
-          <!-- /Login -->
+          @include('sweetalert::alert')
         </div>
       </div>
 
