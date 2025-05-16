@@ -18,6 +18,7 @@ use App\Http\Controllers\LaporanController;
 use App\Exports\TagihanExport;
 use App\Http\Controllers\FonnteController;
 use App\Http\Controllers\FonnteNotificationController;
+use App\Http\Controllers\Auth\ManualResetController;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -39,8 +40,8 @@ Route::get('/', function () {
     return view('auth/pelanggan-login');
 });
 
-Route::get('/password/manual-reset', [App\Http\Controllers\Auth\ManualResetController::class, 'showForm'])->name('password.manual.form');
-Route::post('/password/manual-reset', [App\Http\Controllers\Auth\ManualResetController::class, 'reset'])->name('password.manual.reset');
+Route::get('/password/reset', [ManualResetController::class, 'showForm'])->name('password.manual.reset.form');
+Route::post('/password/reset', [ManualResetController::class, 'reset'])->name('password.manual.reset');
 
 Auth::routes();
 Route::middleware(['auth'])->group(function(){
