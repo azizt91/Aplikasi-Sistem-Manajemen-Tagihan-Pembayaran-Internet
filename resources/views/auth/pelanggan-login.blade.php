@@ -80,7 +80,7 @@
                 <a href="index.html" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
       {{-- <img src="{{ asset('template/img/sn-blue.png') }}" alt="Wifi Logo" style="width: 30px; height: 30px;"> --}}
-      <img src="{{ asset(Storage::url(settings('logo_pelanggan'))) }}" alt="Logo" style="width: 50px; height: 50px;">
+      <img src="{{ asset(Storage::url(settings('logo_pelanggan'))) }}" alt="Logo" style="width: 30px; height: 30px;">
 
       </span>
                   {{-- <span class="app-brand-text demo text-body fw-bold">Selinggonet</span> --}}
