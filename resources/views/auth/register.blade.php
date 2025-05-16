@@ -130,7 +130,7 @@
                 @csrf
                 <div class="mb-3">
                   <label for="username" class="form-label">Username</label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="Enter your username" autofocus>
+                  <input type="text" class="form-control" id="name" name="nama" placeholder="Enter your username" autofocus>
                   @error('name')
                   <span class="invalid-feedback" role="alert">
                       <strong>{{ $message }}</strong>
