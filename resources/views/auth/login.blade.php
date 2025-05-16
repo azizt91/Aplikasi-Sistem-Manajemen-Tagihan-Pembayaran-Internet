@@ -74,7 +74,7 @@
                   <span class="app-brand-logo demo">
 
       {{-- <img src="{{ asset('template/img/sn-blue.png') }}" alt="Wifi Logo" style="width: 30px; height: 30px;"> --}}
-      <img src="{{ asset(Storage::url(settings('logo_admin'))) }}" alt="Logo" style="width: 30px; height: 30px;">
+      <img src="{{ asset(Storage::url(settings('logo_admin'))) }}" alt="Logo" style="width: 50px; height: 50px;">
     </span>
                   {{-- <span class="app-brand-text demo text-body fw-bold">Selinggonet</span> --}}
                   <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name_admin') }}</span>
