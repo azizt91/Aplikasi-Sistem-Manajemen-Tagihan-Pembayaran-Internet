@@ -3,9 +3,6 @@
 @section('content')
 
 
-
-
-
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -22,22 +19,23 @@
         <div class="card-body">
 
             <!-- Filter Form -->
-            <div class="col-12 col-md-6">
-                <form action="/laporan" method="GET" class="row">
-                    <div class="col-md-4">
-                        {{-- <label for="tanggal_awal" class="form-label">Tanggal Awal</label> --}}
-                        <input type="date" name="tanggal_awal" value="{{ $tanggal_awal ?? '' }}" class="form-control">
-                    </div>
-                    <div class="col-md-4">
-                        {{-- <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label> --}}
-                        <input type="date" name="tanggal_akhir" value="{{ $tanggal_akhir ?? '' }}" class="form-control">
-                    </div>
-                    <div class="col-md-4 d-flex align-items-center justify-content-start">
-                        <button type="submit" class="btn btn-primary me-2">Filter</button>
-                        <a href="{{ route('laporan.index') }}" class="btn btn-secondary">Reset</a>
-                    </div>
-                </form>
-            </div>
+                <div class="col-12 col-md-6">
+                    <form action="/laporan" method="GET"
+                          class="d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="form-group mb-2 flex-fill me-2">
+                            <input type="date" name="tanggal_awal" class="form-control"
+                                   value="{{ $tanggal_awal ?? '' }}" required>
+                        </div>
+                        <div class="form-group mb-2 flex-fill me-2">
+                            <input type="date" name="tanggal_akhir" class="form-control"
+                                   value="{{ $tanggal_akhir ?? '' }}" required>
+                        </div>
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary me-2 mb-2">Filter</button>
+                            <a href="{{ route('laporan.index') }}" class="btn btn-secondary mb-2">Reset</a>
+                        </div>
+                    </form>
+                </div>
 
             <!-- Table for Laporan -->
             <div class="table-responsive text-nowrap mt-4">
