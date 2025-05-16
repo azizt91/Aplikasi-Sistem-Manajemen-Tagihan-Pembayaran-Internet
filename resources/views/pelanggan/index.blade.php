@@ -77,6 +77,41 @@
                 </table>
             </div>
         </div>
+        <!-- Modal Import Pelanggan -->
+        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importModalLabel">Import Data Pelanggan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('pelanggan.import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <label for="fileImport">Pilih File Excel (.xlsx, .csv)</label>
+                            <input type="file" name="file" id="fileImport" class="form-control" accept=".xlsx,.csv" required>
+
+                            <!-- 🚀 Panduan Import -->
+                            <p class="mt-2 text-muted">
+                                ⚠️ <strong>Pastikan format data sesuai sebelum mengimport!</strong>
+                                <ul>
+                                    <li><code>id_pelanggan</code> dibuat otomatis, kosongkan saja.</li>
+                                    <li>Gunakan format tanggal strong>YYYY-MM-DD</strong> (bukan DD/MM/YYYY) pada kolom tanggal_pasang</li>
+                                    <li>Nomor WhatsApp harus diawali dengan <strong>62</strong>, tanpa spasi.</li>
+                                    <li>Kolom paket harus diisi dengan <code>id_paket</code> yang telah Anda buat sebelumnya. Sebagai contoh, di sini saya menggunakan <strong>P001</strong>.</li>
+                                    <li>Hindari kolom kosong dalam file Excel untuk menghindari error.</li>
+                                    <li>Untuk lebih mudah, bisa <a href="{{ asset('template/pelanggan.xlsx') }}" target="_blank">download template Excel</a>.</li>
+                                </ul>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-warning">Import Data</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
