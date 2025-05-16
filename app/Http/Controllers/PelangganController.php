@@ -8,6 +8,9 @@ use App\Models\Paket;
 use App\Models\Pelanggan;
 use App\Models\Dashboard;
 use RealRashid\SweetAlert\Facades\Alert;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PelangganExport;
+use App\Imports\PelangganImport;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -111,6 +114,8 @@ class PelangganController extends Controller
 	{
 		$request->validate([
             'whatsapp' => 'required|unique:pelanggan,whatsapp,' . $id_pelanggan . ',id_pelanggan',
+            'email' => 'required|email|unique:pelanggan,email,' . $id_pelanggan . ',id_pelanggan',
+            'password' => 'nullable|min:8',
         ]);//new
         
         $data = [
@@ -121,7 +126,13 @@ class PelangganController extends Controller
 			'jatuh_tempo' => $request->jatuh_tempo,
             'tanggal_pasang' => $request->tanggal_pasang,
 			'status' => $request->status,
+            'email' => $request->email,
 		];
+
+        // Jika ada password baru, update
+        if (!empty($request->password)) {
+            $data['password'] = $request->password; // Jika tidak menggunakan hashing
+        }
 
 		Pelanggan::where('id_pelanggan', $id_pelanggan)->update($data);
 		Alert::success('Sukses', 'Data berhasil diedit');
@@ -162,5 +173,22 @@ class PelangganController extends Controller
 		$pelanggan = Pelanggan::findOrFail($id_pelanggan);
 		return view ('pelanggan.profile', compact('pelanggan'));
 	}
+
+    public function export()
+    {
+        return Excel::download(new PelangganExport, 'pelanggan.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv'
+        ]);
+
+        Excel::import(new PelangganImport, $request->file('file'));
+
+        Alert::success('Sukses', 'Data berhasil diimport!');
+		return redirect()->route('pelanggan');
+    }
 
 }
