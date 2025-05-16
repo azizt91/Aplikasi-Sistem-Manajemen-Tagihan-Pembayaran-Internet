@@ -18,12 +18,10 @@
                     <form method="GET" action="{{ route('pengeluaran.index') }}"
                           class="d-flex flex-wrap align-items-center justify-content-between">
                         <div class="form-group mb-2 flex-fill me-2">
-                            {{-- <label for="tanggal_awal">Tanggal Awal</label> --}}
                             <input type="date" name="tanggal_awal" class="form-control"
                                    value="{{ request('tanggal_awal') }}" required>
                         </div>
                         <div class="form-group mb-2 flex-fill me-2">
-                            {{-- <label for="tanggal_akhir">Tanggal Akhir</label> --}}
                             <input type="date" name="tanggal_akhir" class="form-control"
                                    value="{{ request('tanggal_akhir') }}" required>
                         </div>
