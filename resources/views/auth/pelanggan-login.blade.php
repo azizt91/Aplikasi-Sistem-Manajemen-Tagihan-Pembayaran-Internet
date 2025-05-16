@@ -80,7 +80,7 @@
                 <a href="index.html" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
       {{-- <img src="{{ asset('template/img/sn-blue.png') }}" alt="Wifi Logo" style="width: 30px; height: 30px;"> --}}
-      <img src="{{ asset(Storage::url(settings('logo_pelanggan'))) }}" alt="Logo" style="width: 30px; height: 30px;">
+      <img src="{{ asset(Storage::url(settings('logo_pelanggan'))) }}" alt="Logo" style="width: 50px; height: 50px;">
 
       </span>
                   {{-- <span class="app-brand-text demo text-body fw-bold">Selinggonet</span> --}}
@@ -103,11 +103,11 @@
                 <div class="mb-3 form-password-toggle">
                     <div class="d-flex justify-content-between">
                         <label class="form-label" for="password">Password</label>
-                        @if (Route::has('password.request'))
+<!--                         @if (Route::has('password.request'))
                         <a href="{{ route('password.request') }}">
                             <small>Forgot Password?</small>
                         </a>
-                        @endif
+                        @endif -->
                     </div>
                     <div class="input-group input-group-merge">
                         <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
