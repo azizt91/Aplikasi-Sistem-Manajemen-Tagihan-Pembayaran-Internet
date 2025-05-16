@@ -6,15 +6,13 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="m-0 font-weight-bold text-primary">Data Pengeluaran</h5>
+            <a href="{{ route('pengeluaran.create') }}" class="btn btn-primary rounded-pill text-body-end">
+                        <i class="bx bx-plus"></i> Pengeluaran
+            </a>
         </div>
 
         <div class="card-body">
             <div class="row mb-3">
-                <div class="col-12 col-md-6 d-flex justify-content-start mb-2">
-                    <a href="{{ route('pengeluaran.create') }}" class="btn btn-primary rounded-pill text-body-end">
-                        <i class="bx bx-plus"></i> Pengeluaran
-                    </a>
-                </div>
 
                 <div class="col-12 col-md-6">
                     <form method="GET" action="{{ route('pengeluaran.index') }}"
