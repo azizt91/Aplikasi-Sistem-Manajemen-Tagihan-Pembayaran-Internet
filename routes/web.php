@@ -39,6 +39,9 @@ Route::get('/', function () {
     return view('auth/pelanggan-login');
 });
 
+Route::get('/password/manual-reset', [App\Http\Controllers\Auth\ManualResetController::class, 'showForm'])->name('password.manual.form');
+Route::post('/password/manual-reset', [App\Http\Controllers\Auth\ManualResetController::class, 'reset'])->name('password.manual.reset');
+
 Auth::routes();
 Route::middleware(['auth'])->group(function(){
     Route::get('/user', [UserController::class, 'index'])->name('user');
@@ -149,6 +152,9 @@ Route::post('/fonnte/send-message', [FonnteController::class, 'sendMessage'])->n
 Route::get('/fonnte/notification', [FonnteNotificationController::class, 'index'])->name('fonnte.notification.index');
 Route::post('/fonnte/notification/save-settings', [FonnteNotificationController::class, 'saveSettings'])->name('fonnte.notification.saveSettings');
 Route::post('/fonnte/notification/send', [FonnteNotificationController::class, 'sendNotifications'])->name('fonnte.notification.send');
+
+Route::get('/pelanggan/export', [PelangganController::class, 'export'])->name('pelanggan.export');
+Route::post('/pelanggan/import', [PelangganController::class, 'import'])->name('pelanggan.import');
 
 
 
