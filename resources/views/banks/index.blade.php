@@ -40,9 +40,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                @include('sweetalert::alert')
             </div>
         </div>
-        @include('sweetalert::alert')
     </div>
 </div>
 
