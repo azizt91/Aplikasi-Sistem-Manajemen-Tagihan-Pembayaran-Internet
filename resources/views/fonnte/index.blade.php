@@ -30,7 +30,7 @@
                             <input type="text" name="token" class="form-control" value="{{ $setting->token ?? '' }}" readonly>
                         </div>
                         <p class="text-muted mt-2 mb-0">
-                            Daftarkan akun Anda di <a href="https://fonnte.com/" target="_blank">Fonnte</a> dan tambahkan nomor WhatsApp untuk mendapatkan token.
+                            Silakan daftar dan tambahkan nomor WhatsApp Anda di <a href="https://fonnte.com/" target="_blank">Fonnte</a> untuk mendapatkan token.
                             Setelah itu, masukkan token yang Anda peroleh ke dalam kolom yang tersedia di sini.
                         </p>
                     </form>
