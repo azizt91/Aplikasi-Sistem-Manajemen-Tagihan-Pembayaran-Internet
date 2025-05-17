@@ -291,6 +291,47 @@ class TagihanController extends Controller
         return redirect()->route('buka-tagihan');
     }
 
+    public function generateMonthlyBills()
+    {
+        $bulan = Carbon::now()->format('m'); // Ambil bulan saat ini
+        $tahun = Carbon::now()->format('Y'); // Ambil tahun saat ini
+
+        Log::info("🔄 Memulai pembuatan tagihan otomatis untuk bulan {$bulan} tahun {$tahun}");
+
+        $pelangganAktif = Pelanggan::with('paket')->where('status', 'aktif')->get();
+        foreach ($pelangganAktif as $pelanggan) {
+            // Cek apakah tagihan sudah ada di bulan dan tahun ini
+            $existingTagihan = Tagihan::where('bulan', $bulan)
+                ->where('tahun', $tahun)
+                ->where('id_pelanggan', $pelanggan->id_pelanggan)
+                ->first();
+
+            if ($existingTagihan) {
+                Log::warning("⚠️ Tagihan sudah ada untuk pelanggan {$pelanggan->id_pelanggan}. Melewati...");
+                continue;
+            }
+
+            if ($pelanggan->paket) {
+                $tarifPelanggan = $pelanggan->paket->tarif;
+
+                // Buat tagihan baru
+                Tagihan::create([
+                    'bulan' => $bulan,
+                    'tahun' => $tahun,
+                    'id_pelanggan' => $pelanggan->id_pelanggan,
+                    'tagihan' => $tarifPelanggan,
+                    'status' => 'BL',
+                ]);
+
+                Log::info("✅ Tagihan berhasil dibuat untuk pelanggan {$pelanggan->id_pelanggan}");
+            } else {
+                Log::warning("⚠️ Pelanggan {$pelanggan->id_pelanggan} tidak memiliki paket. Melewati...");
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Tagihan otomatis berhasil dibuat']);
+    }
+
 }
 
 
