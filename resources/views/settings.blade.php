@@ -9,7 +9,7 @@
         <div class="col-xl">
             <div class="card mb-6">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 font-weight-bold text-primary">Settings</h5>
+                    <h5 class="mb-0 font-weight-bold text-primary">Setting Nama & Icon Aplikasi</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
