@@ -40,8 +40,8 @@ Route::get('/', function () {
     return view('auth/pelanggan-login');
 });
 
-Route::get('/password/reset', [ManualResetController::class, 'showForm'])->name('password.manual.reset.form');
-Route::post('/password/reset', [ManualResetController::class, 'reset'])->name('password.manual.reset');
+Route::get('/password/manual/reset', [ManualResetController::class, 'showForm'])->name('password.manual.form');
+Route::post('/password/manual/reset', [ManualResetController::class, 'reset'])->name('password.manual.reset');
 
 Auth::routes();
 Route::middleware(['auth'])->group(function(){
