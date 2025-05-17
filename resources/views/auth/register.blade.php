@@ -90,8 +90,8 @@
                 </a>
               </div>
               <!-- /Logo -->
-              <h4 class="mb-2">Adventure starts here 🚀</h4>
-              <p class="mb-4">Make your app management easy and fun!</p>
+              <h4 class="mb-2">Mulai perjalanan sebagai Admin! 🚀</h4>
+              <p class="mb-4">elola aplikasi Anda dengan mudah dan efisien</p>
       
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('register') }}">
                 @csrf
