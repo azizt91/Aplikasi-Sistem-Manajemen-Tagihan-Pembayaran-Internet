@@ -43,10 +43,10 @@
                         </div>
                         @endif
                     </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="{{ route('banks.index') }}" class="btn btn-secondary">Batal</a>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </div>
+                    <div class="card-footer d-flex justify-content-start gap-2">
+        				<a href="{{ route('banks.index') }}" class="btn btn-secondary">Batal</a>
+        				<button type="submit" class="btn btn-primary">Simpan</button>
+			        </div>
                 </div>
             </div>
         </div>
