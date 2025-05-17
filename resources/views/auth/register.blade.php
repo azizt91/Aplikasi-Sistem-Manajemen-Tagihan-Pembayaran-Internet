@@ -99,28 +99,22 @@
                   <label for="username" class="form-label">Username</label>
                   <input type="text" class="form-control" id="name" name="nama" placeholder="Enter your username" autofocus>
                   @error('name')
-                  <span class="invalid-feedback" role="alert">
-                      <strong>{{ $message }}</strong>
-                  </span>
-                 @enderror
+                    <div class="text-danger">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="mb-3">
                   <label for="email" class="form-label">Email</label>
                   <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
                   @error('email')
-                  <span class="invalid-feedback" role="alert">
-                      <strong>{{ $message }}</strong>
-                  </span>
-                @enderror
+                    <div class="text-danger">{{ $message }}</div>
+                  @enderror
                 </div>
                 <div class="mb-3 form-password-toggle">
                   <label class="form-label" for="password">Password</label>
                   <div class="input-group input-group-merge">
                     <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
                     @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                            </span>
+                    <div class="text-danger">{{ $message }}</div>
                     @enderror
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                   </div>
@@ -130,9 +124,7 @@
                   <div class="input-group input-group-merge">
                     <input type="password" id="password" class="form-control" name="password_confirmation" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="new-password" />
                     @error('password_confirmation')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                            </span>
+                    <div class="text-danger">{{ $message }}</div>
                     @enderror
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                   </div>
