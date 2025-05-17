@@ -159,7 +159,7 @@
         <li class="menu-item {{ request()->is('settings*') ? 'active' : '' }}">
             <a href="{{ route('settings.edit') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div class="text-truncate" data-i18n="Settings">Settings</div>
+                <div class="text-truncate" data-i18n="Settings">Setting Nama & Icon Aplikasi</div>
             </a>
         </li>
 
