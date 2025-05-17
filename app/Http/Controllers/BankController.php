@@ -45,7 +45,7 @@ class BankController extends Controller
         }
 
         Bank::create($data);
-        Alert::toast('Bank created successfully!', 'success');
+        Alert::success('Sukses', 'Data Bank berhasil dibuat');
         return redirect()->route('banks.index');
     }
 
@@ -84,7 +84,7 @@ class BankController extends Controller
         }
 
         $bank->save();
-        Alert::toast('Bank updated successfully!', 'success');
+        Alert::success('Sukses', 'Data Bank berhasil diedit');
         return redirect()->route('banks.index');
     }
 
@@ -96,7 +96,7 @@ class BankController extends Controller
         }
 
         $bank->delete();
-        Alert::toast('Bank deleted successfully!', 'success');
+        Alert::success('Sukses', 'Data Bank berhasil dihapus');
         return redirect()->route('banks.index');
     }
 }
