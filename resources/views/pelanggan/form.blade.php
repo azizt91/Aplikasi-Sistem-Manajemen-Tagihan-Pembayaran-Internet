@@ -36,23 +36,35 @@
                         @error('whatsapp')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
-                        <div class="mb-6">
-                            <label class="form-label" for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email"
-                                placeholder="Contoh: user@email.com"
-                                value="{{ isset($pelanggan) ? $pelanggan->email : '' }}">
-                        </div>
-                        @error('email')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                        <div class="mb-6">
-                            <label class="form-label" for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password"
-                                placeholder="Kosongkan jika tidak ingin mengubah password">
-                        </div>
-                        @error('password')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
+			            <!-- Tampilkan Email dan Password hanya saat Edit -->
+                        @isset($pelanggan)
+                            <div class="mb-6">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="Contoh: user@email.com"
+                                    value="{{ $pelanggan->email }}">
+                            </div>
+                            @error('email')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+
+                            <div class="mb-6">
+                                <label class="form-label" for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Kosongkan jika tidak ingin mengubah password">
+                            </div>
+                            @error('password')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+
+                            <div class="mb-6">
+                                <label class="form-label" for="status">Status</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="aktif" {{ $pelanggan->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="nonaktif" {{ $pelanggan->status == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                                </select>
+                            </div>
+                        @endisset
                         <div class="mb-6">
                             <label class="form-label" for="id_paket">Paket</label>
                             <select name="id_paket" id="id_paket" class="form-select">
@@ -64,16 +76,6 @@
                                 @endforeach
                             </select>
                         </div>
-                        <!-- Tampilkan kolom Status hanya saat edit pelanggan -->
-                        @isset($pelanggan)
-                            <div class="mb-6">
-                                <label class="form-label" for="status">Status</label>
-                                <select name="status" id="status" class="form-select">
-                                    <option value="aktif" {{ isset($pelanggan) && $pelanggan->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                    <option value="nonaktif" {{ isset($pelanggan) && $pelanggan->status == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                                </select>
-                            </div>
-                        @endisset
                         <div class="mb-6">
                             <label class="form-label" for="jatuh_tempo">Jatuh Tempo</label>
                             <input type="text" class="form-control" id="jatuh_tempo" name="jatuh_tempo" placeholder="Contoh:Tanggal 20" value="{{ isset($pelanggan) ? $pelanggan->jatuh_tempo : '' }}">
