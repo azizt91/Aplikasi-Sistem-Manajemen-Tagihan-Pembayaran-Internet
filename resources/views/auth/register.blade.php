@@ -91,7 +91,7 @@
               </div>
               <!-- /Logo -->
               <h4 class="mb-2">Mulai perjalanan sebagai Admin! 🚀</h4>
-              <p class="mb-4">elola aplikasi Anda dengan mudah dan efisien</p>
+              <p class="mb-4">Kelola aplikasi Anda dengan mudah dan efisien</p>
       
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('register') }}">
                 @csrf
