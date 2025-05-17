@@ -10,7 +10,27 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0 font-weight-bold text-primary">Data Pelanggan</h5>
             @if (auth()->user()->level == 'Admin')
-                <a href="{{ route('pelanggan.tambah') }}" class="btn btn-primary rounded-pill text-body-end"><i class="bx bx-plus me-1"></i>Pelanggan</a>
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <!-- Dropdown untuk Import & Export -->
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-danger dropdown-toggle rounded-pill" data-bs-toggle="dropdown">
+                            Import/Export
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ route('pelanggan.export') }}">
+                                <i class="bx bx-download me-1"></i> Export to Excel
+                            </a>
+                            <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#importModal">
+                                <i class="bx bx-upload me-1"></i> Import from Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Tambah Pelanggan -->
+                    <a href="{{ route('pelanggan.tambah') }}" class="btn btn-primary rounded-pill">
+                        <i class="bx bx-plus"></i>Pelanggan
+                    </a>
+                </div>
             @endif
         </div>
         <div class="card-body">
