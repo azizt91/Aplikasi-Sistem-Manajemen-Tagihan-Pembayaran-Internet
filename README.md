@@ -65,12 +65,6 @@ Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermuda
    php artisan key:generate
    ```
 
-8. **Tambah user admin melalui seeder**:
-   Jalankan perintah berikut untuk menambahkan user admin:
-   ```bash
-   php artisan db:seed --class=NamaSeeder
-   ```
-
 8. **Membuat symlink (symbolic link)**:
    Agar file bisa di akses dari URL publik
    ```bash
@@ -91,10 +85,7 @@ Selamat, aplikasi siap diakses! 😊
 ![image](https://github.com/user-attachments/assets/f4af2dc1-2e4e-42e9-bee5-1a87f0ee6f5b)
 2. klik Create an account
 ![image](https://github.com/user-attachments/assets/776c1153-3a92-4d21-9f46-2e4047a25a66)
-
-
-- **Email**: youremail@gmail.com  
-- **Password**: password123  
+3. Anda akan diarahkan ke Dashboard Admin jika berhasil membuat akun
 
 ---
 
