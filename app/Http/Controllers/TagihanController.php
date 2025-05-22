@@ -143,24 +143,51 @@ class TagihanController extends Controller
 
     }
 
-    public function bayarTagihan($kode)
+    public function bayarTagihan(Request $request, $kode)
     {
-        // Temukan tagihan berdasarkan kode atau id_tagihan
         $tagihan = Tagihan::find($kode);
 
-        // Cek apakah tagihan ditemukan
         if (!$tagihan) {
             Alert::error('Error', 'Tagihan tidak ditemukan');
             return redirect()->route('buka-tagihan');
         }
 
-        // Update status dan tanggal bayar tanpa memeriksa apakah sudah lunas
-        $tagihan->status = 'LS';
-        $tagihan->tgl_bayar = now();
+        // Cek apakah ini pembayaran langsung lunas (jika tombol "Lunas" ditekan)
+        if (!$request->has('jumlah_bayar')) {
+            // Langsung tandai sebagai lunas tanpa cek jumlah bayar
+            $tagihan->status = 'LS';
+            $tagihan->tgl_bayar = now();
+            $tagihan->jumlah_dibayar = $tagihan->tagihan; // Set nilai ke total tagihan
+            $tagihan->save();
+
+            Alert::success('Sukses', 'Tagihan telah lunas');
+            return redirect()->route('lunas-tagihan');
+        }
+
+        // Jika ada jumlah cicilan, jalankan validasi biasa
+        $jumlah_bayar = $request->input('jumlah_bayar');
+
+        if ($jumlah_bayar <= 0 || $jumlah_bayar > ($tagihan->tagihan - $tagihan->jumlah_dibayar)) {
+            Alert::error('Error', 'Jumlah bayar tidak valid');
+            return redirect()->route('buka-tagihan');
+        }
+
+        // Tambahkan cicilan
+        $tagihan->jumlah_dibayar += $jumlah_bayar;
         $tagihan->save();
 
-        Alert::success('Sukses', 'Pembayaran tagihan berhasil');
-        return redirect()->route('lunas-tagihan');
+        // Cek apakah sudah lunas setelah cicilan ditambahkan
+        if ($tagihan->jumlah_dibayar >= $tagihan->tagihan) {
+            $tagihan->status = 'LS';
+            $tagihan->tgl_bayar = now();
+            $tagihan->save();
+
+            Alert::success('Sukses', 'Tagihan telah lunas');
+            return redirect()->route('lunas-tagihan');
+        }
+
+        Alert::success('Sukses', 'Pembayaran berhasil, masih ada sisa tagihan');
+        return redirect()->route('buka-tagihan');
     }
 
 
