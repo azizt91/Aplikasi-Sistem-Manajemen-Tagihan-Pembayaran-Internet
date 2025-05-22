@@ -22,6 +22,8 @@
                             <th>ID Pelanggan</th>
                             <th>Nama</th>
                             <th>Tagihan</th>
+                            <th>Jumlah Dibayar</th>
+                            <th>Sisa Tagihan</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -33,6 +35,8 @@
                             <td>{{ $data->id_pelanggan }}</td>
                             <td>{{ $data->pelanggan->nama }}</td>
                             <td>{{ rupiah($data->tagihan) }}</td>
+                            <td>{{ rupiah($data->jumlah_dibayar) }}</td>
+                            <td>{{ rupiah($data->tagihan - $data->jumlah_dibayar) }}</td>
                             <td>
                                 @if($data->status === 'BL' || !isset($data->tgl_bayar))
                                 <span class="badge rounded-pill bg-danger">Belum Bayar</span>
@@ -47,6 +51,31 @@
                                         <i class="bx bx-money me-1"></i>
                                     </button>
                                 </form>
+                                <!-- Tombol Bayar Cicilan -->
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalCicil{{ $data->id }}">
+                                    <i class="bx bx-wallet me-1"></i>
+                                </button>
+                                <!-- Modal Input Nominal Cicilan -->
+                                <div class="modal fade" id="modalCicil{{ $data->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $data->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="{{ route('bayar-tagihan', ['kode' => $data->id]) }}" method="POST">
+                                                @csrf
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalLabel{{ $data->id }}">Pembayaran Cicilan</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <label for="jumlahBayar">Masukkan nominal cicilan:</label>
+                                                    <input type="number" name="jumlah_bayar" class="form-control" min="1" max="{{ $data->tagihan - $data->jumlah_dibayar }}" required>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-success">Bayar Cicilan</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                                 <a href="https://api.whatsapp.com/send?phone={{ $data->pelanggan->whatsapp }}&text=Sdr/i%20{{ $data->pelanggan->nama }},%20Anda%20belum%20melakukan%20pembayaran%20Tagihan%20Internet%20untuk%20Bulan%20{{ $data->bulan }}%20Tahun%20{{ $data->tahun }}%20*Admin Selinggo-Net*" target="_blank" title="Pesan WhatsApp" class="btn btn-success btn-sm">
                                     <i class="bx bxl-whatsapp me-1"></i>
                                 </a>
@@ -60,7 +89,6 @@
                             </td>
                         </tr>
                         @endforeach
-                        @include('sweetalert::alert')
                     </tbody>
                 </table>
             </div>
