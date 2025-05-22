@@ -86,7 +86,13 @@ Selamat, aplikasi siap diakses! 😊
 
 ---
 
-### **Login Admin**
+### **Untuk Masuk ke Dashboard Admin Anda harus membuat akun baru**
+1. Klik Log in here
+![image](https://github.com/user-attachments/assets/f4af2dc1-2e4e-42e9-bee5-1a87f0ee6f5b)
+2. klik Create an account
+![image](https://github.com/user-attachments/assets/776c1153-3a92-4d21-9f46-2e4047a25a66)
+
+
 - **Email**: youremail@gmail.com  
 - **Password**: password123  
 
