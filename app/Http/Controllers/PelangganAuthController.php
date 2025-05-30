@@ -64,7 +64,7 @@ class PelangganAuthController extends Controller
             ->withCookie(Cookie::forget('remembered_email'));
     }
 
-    public function dashboard()
+        public function dashboard()
     {
         // Ambil data pelanggan yang sedang login
         $pelanggan = Auth::guard('pelanggan')->user();
@@ -74,32 +74,32 @@ class PelangganAuthController extends Controller
         $tagihanLunas = $pelanggan->tagihan()->where('status', 'LS')->get();
         $jumlahTagihanLunas = count($tagihanLunas);
 
-        // Ambil tagihan pelanggan untuk bulan ini
-        $bulanIni = Carbon::now()->format('Y-m');
-
-        // Ambil tagihan pelanggan untuk bulan ini
+        // Ambil tagihan bulan ini berdasarkan tanggal (created_at)
         $tagihanBulanIni = $pelanggan->tagihan()
-        ->whereYear('created_at', '=', Carbon::now()->year)
-        ->whereMonth('created_at', '=', Carbon::now()->month)
-        ->first();
+                ->where('bulan', now()->month)
+                ->where('tahun', now()->year)
+                ->first();
 
-        // Periksa apakah ada tagihan bulan ini
-        if ($tagihanBulanIni) {
-            $statusTagihan = $tagihanBulanIni->status;
-            $nominalTagihanBulanIni = rupiah($tagihanBulanIni->tagihan);
-            $jatuhTempo = $pelanggan->jatuh_tempo;
-            $tglBayar = $tagihanBulanIni->tgl_bayar ? Carbon::parse($tagihanBulanIni->tgl_bayar)->translatedFormat('d F Y') : '';
-        } else {
-            $statusTagihan = 'LS'; // Jika tidak ada tagihan bulan ini, maka asumsikan status "Belum Lunas"
-            $nominalTagihanBulanIni = 0; // Atau Anda bisa menggunakan string kosong ''
-            $jatuhTempo = ''; // Tanggal jatuh tempo
-            $tglBayar = ''; // Tanggal bayar
-        }
 
-        // Format tanggal_pasang dengan Carbon jika ada nilainya
+        // Siapkan default value jika tidak ada tagihan bulan ini
+        $statusTagihan = $tagihanBulanIni->status ?? null;
+        $nominalTagihanBulanIni = $tagihanBulanIni ? rupiah($tagihanBulanIni->tagihan) : null;
+        $jatuhTempo = $tagihanBulanIni && $statusTagihan === 'BL' ? $pelanggan->jatuh_tempo : null;
+        $tglBayar = $tagihanBulanIni && $tagihanBulanIni->tgl_bayar
+            ? Carbon::parse($tagihanBulanIni->tgl_bayar)->translatedFormat('d F Y')
+            : null;
         $tanggalPasang = $pelanggan->tanggal_pasang ? Carbon::parse($pelanggan->tanggal_pasang)->format('d F Y') : null;
-
-        return view('dashboard-pelanggan', compact('pelanggan', 'jumlahTagihanBelumLunas', 'jumlahTagihanLunas', 'statusTagihan', 'nominalTagihanBulanIni', 'jatuhTempo', 'tglBayar', 'tagihanBulanIni', 'tanggalPasang'));
+        return view('dashboard-pelanggan', compact(
+            'pelanggan',
+            'statusTagihan',
+            'nominalTagihanBulanIni',
+            'jatuhTempo',
+            'tglBayar',
+            'tanggalPasang',
+            'tagihanBulanIni',
+            'jumlahTagihanBelumLunas',
+            'jumlahTagihanLunas'
+        ));
     }
 
     public function logout(Request $request)
