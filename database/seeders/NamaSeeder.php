@@ -15,7 +15,7 @@ class NamaSeeder extends Seeder
     {
         User::create([
             'nama' => 'Admin',
-            'email' => 'youremail@gmail.com',
+            'email' => 'admin@gmail.com',
             'password' => bcrypt('password123'),
             'level' => 'Admin',
         ]);
