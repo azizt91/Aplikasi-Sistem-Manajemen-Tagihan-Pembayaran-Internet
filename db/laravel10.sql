@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 22 Bulan Mei 2025 pada 10.48
+-- Waktu pembuatan: 15 Jun 2025 pada 08.31
 -- Versi server: 10.4.27-MariaDB
 -- Versi PHP: 8.2.0
 
@@ -210,6 +210,18 @@ CREATE TABLE `paket` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data untuk tabel `paket`
+--
+
+INSERT INTO `paket` (`id_paket`, `paket`, `tarif`, `created_at`, `updated_at`) VALUES
+('P001', '20 Mbps', 250000, '2024-11-11 00:04:58', '2024-11-11 00:04:58'),
+('P002', '10 Mbps', 200000, '2024-01-27 21:45:02', '2024-01-27 21:51:39'),
+('P003', '8 Mbps', 180000, '2024-01-27 21:45:35', '2024-01-27 21:52:09'),
+('P004', '5 Mbps', 150000, '2024-01-27 21:45:56', '2024-02-19 18:00:31'),
+('P005', '3 Mbps', 100000, '2024-02-19 18:00:21', '2024-02-19 18:04:26'),
+('P006', '1.5 MB', 50000, '2024-02-19 18:04:50', '2024-02-19 18:04:50');
+
 -- --------------------------------------------------------
 
 --
@@ -256,6 +268,18 @@ CREATE TABLE `pelanggan` (
   `status` enum('aktif','nonaktif') NOT NULL,
   `tanggal_pasang` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `pelanggan`
+--
+
+INSERT INTO `pelanggan` (`id_pelanggan`, `nama`, `alamat`, `whatsapp`, `email`, `password`, `level`, `id_paket`, `created_at`, `updated_at`, `jatuh_tempo`, `profile_picture`, `status`, `tanggal_pasang`) VALUES
+('C001', 'Aufa Itratun Afifah', 'Desa Pamutih', '6289530105003', 'cst1@mail.com', '12345678', 'User', 'P006', '2025-06-14 22:39:11', '2025-06-14 22:39:11', 'Tanggal 15', NULL, 'aktif', '2025-06-15'),
+('C002', 'Saeful Anwar', 'Desa Pamutih', '62895366892738', 'cst2@mail.com', '12345678', 'User', 'P005', '2025-06-14 22:40:40', '2025-06-14 22:40:40', 'Tanggal 10', NULL, 'aktif', '2025-06-10'),
+('C003', 'Devi K A', 'Desa Pamutih', '6287830529041', 'cst3@mail.com', '12345678', 'User', 'P004', '2025-06-14 22:42:24', '2025-06-14 22:42:24', 'Tanggal 9', NULL, 'aktif', '2025-05-09'),
+('C004', 'Eko Wijoyo', 'Desa Pamutih', '6282328680025', 'cst4@mail.com', '12345678', 'User', 'P003', '2025-06-14 22:43:22', '2025-06-14 22:43:22', 'Tanggal 10', NULL, 'aktif', '2025-04-10'),
+('C005', 'Bambang Widodo', 'Desa Pamutih', '6282116568036', 'cst5@mail.com', '12345678', 'User', 'P002', '2025-06-14 22:44:22', '2025-06-14 22:44:22', 'Tanggal 14', NULL, 'aktif', '2025-06-14'),
+('C006', 'Taufiq Aziz', 'Desa Pamutih', '6281914170701', 'cst6@mail.com', '12345678', 'User', 'P001', '2025-06-14 22:44:59', '2025-06-14 22:44:59', 'Tanggal 1', NULL, 'aktif', '2025-06-01');
 
 -- --------------------------------------------------------
 
@@ -317,15 +341,15 @@ INSERT INTO `settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES
 (3, 'logo_pelanggan', 'public/logos/B2hEgzbzKqKmcCOHJRpuBkcoISXXCK7oZG2618Io.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
 (4, 'sidebar_logo', 'public/logos/kS1WBGaS7ffyzsRR2JlKYr2PcVmUouHMUO0jEg9p.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
 (5, 'receipt_logo', 'public/logos/eo6LgLLrHmUFdo2Ggzdgqo5i1otPTauunRYnVJpm.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
-(6, 'sidebar_text', 'BayarDong', '2025-02-19 22:59:53', '2025-03-18 17:01:10'),
+(6, 'sidebar_text', 'Selinggonet', '2025-02-19 22:59:53', '2025-06-14 22:47:05'),
 (7, 'company_address', 'Pamutih 52371', '2025-02-19 22:59:53', '2025-02-19 22:59:53'),
 (8, 'whatsapp_number', '081914170701', '2025-02-19 22:59:53', '2025-02-19 22:59:53'),
-(9, 'pwa_name', 'BayarDong', '2025-02-19 22:59:53', '2025-03-18 17:01:10'),
-(10, 'pwa_short_name', 'BayarDong', '2025-02-19 22:59:53', '2025-03-18 17:01:10'),
+(9, 'pwa_name', 'Selinggonet', '2025-02-19 22:59:53', '2025-06-14 22:47:05'),
+(10, 'pwa_short_name', 'Selinggonet', '2025-02-19 22:59:53', '2025-06-14 22:47:05'),
 (11, 'pwa_description', 'Sistem Manajemen Tagihan Pembayaran Internet', '2025-02-19 22:59:53', '2025-03-29 23:29:17'),
 (12, 'pwa_logo', 'public/logos/jLcSetpiMnBMg8Z2zqhT6oCpLD0dUMEIudukgF0S.png', '2025-02-19 22:59:53', '2025-03-30 00:16:50'),
-(13, 'app_name_admin', 'BayarDong', '2025-03-18 17:01:10', '2025-03-18 17:01:10'),
-(14, 'app_name_pelanggan', 'BayarDong', '2025-03-18 17:01:10', '2025-03-18 17:01:10');
+(13, 'app_name_admin', 'Selinggonet', '2025-03-18 17:01:10', '2025-06-14 22:47:05'),
+(14, 'app_name_pelanggan', 'Selinggonet', '2025-03-18 17:01:10', '2025-06-14 22:47:05');
 
 -- --------------------------------------------------------
 
@@ -391,6 +415,13 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `users`
+--
+
+INSERT INTO `users` (`id`, `nama`, `email`, `password`, `profile_picture`, `level`, `created_at`, `updated_at`, `remember_token`) VALUES
+(4, 'Admin', 'admin@gmail.com', '$2y$10$ABvrfRegj617TBP.SG0SVOvbT7Tl/HZ8gIqTs2.y.P11cHmzbk99O', NULL, 'Admin', '2025-06-14 22:23:42', '2025-06-14 22:23:42', NULL);
 
 --
 -- Indexes for dumped tables
@@ -579,7 +610,7 @@ ALTER TABLE `tagihan`
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
