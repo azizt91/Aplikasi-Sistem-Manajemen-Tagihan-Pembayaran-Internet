@@ -77,9 +77,9 @@ Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermuda
    ```
 
 10. **Jalankan aplikasi lokal**:
-   ```bash
-   php artisan serve
-   ```
+    ```bash
+       php artisan serve
+       ```
 
 11. Aplikasi akan dapat diakses biasanya di
     ```bash
@@ -90,7 +90,8 @@ Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermuda
     Email: `admin@gmail.com`
     Password: `password123`
 
-14. **Anda juga bisa membuat akun admin baru langsung dengan langkah seperti dibawah ini**
+14. **Anda juga bisa membuat akun admin baru langsung dengan langkah seperti dibawah ini**:
+    
     a. Klik Log in here
     ![image](https://github.com/user-attachments/assets/f4af2dc1-2e4e-42e9-bee5-1a87f0ee6f5b)
     b. klik Create an account
