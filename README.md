@@ -78,16 +78,18 @@ Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermuda
 
 10. **Jalankan aplikasi lokal**:
     ```bash
-       php artisan serve
+    php artisan serve
        ```
 
 11. Aplikasi akan dapat diakses biasanya di
     ```bash
-      http://127.0.0.1:8000
+    http://127.0.0.1:8000
      ```
 
 12. **Informasi Login Admin Default**:
+    
     Email: `admin@gmail.com`
+    
     Password: `password123`
 
 14. **Anda juga bisa membuat akun admin baru langsung dengan langkah seperti dibawah ini**:
