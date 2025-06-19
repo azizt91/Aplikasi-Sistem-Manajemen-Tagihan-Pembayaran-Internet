@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 15 Jun 2025 pada 08.31
+-- Waktu pembuatan: 19 Jun 2025 pada 13.21
 -- Versi server: 10.4.27-MariaDB
 -- Versi PHP: 8.2.0
 
@@ -110,13 +110,6 @@ CREATE TABLE `fonnte` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data untuk tabel `fonnte`
---
-
-INSERT INTO `fonnte` (`id`, `token`, `created_at`, `updated_at`) VALUES
-(5, 'q3yqhiRwa2UXzpwGydZ2', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -372,6 +365,18 @@ CREATE TABLE `tagihan` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data untuk tabel `tagihan`
+--
+
+INSERT INTO `tagihan` (`id`, `reference`, `bulan`, `tahun`, `id_pelanggan`, `tagihan`, `jumlah_dibayar`, `status`, `tgl_bayar`, `pembayaran_via`, `created_at`, `updated_at`) VALUES
+(1504, 'DEV-T35589248084FDSX3', 6, 2025, 'C001', 50000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:57:01'),
+(1505, NULL, 6, 2025, 'C002', 100000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1506, NULL, 6, 2025, 'C003', 150000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1507, NULL, 6, 2025, 'C004', 180000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1508, NULL, 6, 2025, 'C005', 200000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1509, NULL, 6, 2025, 'C006', 250000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03');
+
 -- --------------------------------------------------------
 
 --
@@ -396,7 +401,7 @@ CREATE TABLE `tripay_config` (
 --
 
 INSERT INTO `tripay_config` (`id`, `is_enabled`, `api_key`, `private_key`, `merchant_code`, `payment_channel_url`, `transaction_create_url`, `transaction_detail_url`, `created_at`, `updated_at`) VALUES
-(1, 1, 'HZBZ9xwUQQJ8w8klf5yVKviG5fZbPDMzU1COS78O', '395iV-hrDrC-i4Yj0-eUuht-50iFL', 'T35832', 'https://tripay.co.id/api/merchant/payment-channel', 'https://tripay.co.id/api/transaction/create', 'https://tripay.co.id/api/transaction/detail', '2025-02-15 01:17:53', '2025-03-29 23:07:21');
+(1, 1, 'DEV-mhY2fWq180nc1vn6RhV57C0RIffEO56DVe7sJlwB', 'bIUJE-9OykS-d0L1c-cmIiW-axufz', 'T35589', 'https://tripay.co.id/api-sandbox/merchant/payment-channel', 'https://tripay.co.id/api-sandbox/transaction/create', 'https://tripay.co.id/api-sandbox/transaction/detail', '2025-02-15 01:17:53', '2025-06-19 03:48:03');
 
 -- --------------------------------------------------------
 
@@ -415,13 +420,6 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data untuk tabel `users`
---
-
-INSERT INTO `users` (`id`, `nama`, `email`, `password`, `profile_picture`, `level`, `created_at`, `updated_at`, `remember_token`) VALUES
-(4, 'Admin', 'admin@gmail.com', '$2y$10$ABvrfRegj617TBP.SG0SVOvbT7Tl/HZ8gIqTs2.y.P11cHmzbk99O', NULL, 'Admin', '2025-06-14 22:23:42', '2025-06-14 22:23:42', NULL);
 
 --
 -- Indexes for dumped tables
@@ -604,7 +602,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT untuk tabel `tagihan`
 --
 ALTER TABLE `tagihan`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1504;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1510;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
