@@ -90,6 +90,3 @@ class SettingController extends Controller
             return redirect()->route('settings.edit');
         }
     }
-
-
-

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 22 Bulan Mei 2025 pada 10.48
+-- Waktu pembuatan: 29 Agu 2025 pada 13.49
 -- Versi server: 10.4.27-MariaDB
--- Versi PHP: 8.2.0
+-- Versi PHP: 8.3.24
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -116,7 +116,8 @@ CREATE TABLE `fonnte` (
 --
 
 INSERT INTO `fonnte` (`id`, `token`, `created_at`, `updated_at`) VALUES
-(5, 'q3yqhiRwa2UXzpwGydZ2', NULL, NULL);
+(6, 'q3yqhiRwa2UXzpwGydZ2', NULL, NULL),
+(7, 'q3yqhiRwa2UXzpwGydZ2', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -136,7 +137,7 @@ CREATE TABLE `fonnte_notification_settings` (
 --
 
 INSERT INTO `fonnte_notification_settings` (`id`, `is_active`, `send_date_option`, `custom_message`) VALUES
-(1, 1, 'tanggal_pasang', '*Informasi Tagihan WiFi Anda*\r\n\r\nHai Bapak/Ibu @{{nama}}\r\nID Pelanggan @{{id_pelanggan}}\r\n\r\nInformasi tagihan Bapak/Ibu bulan ini adalah:\r\nJumlah Tagihan: *Rp@{{tagihan}}*\r\nPeriode Tagihan: *@{{periode}}*\r\n\r\nBayar tagihan anda di salah satu rekening dibawah ini:\r\n• Seabank 901307925714 An. TAUFIQ AZIZ\r\n• BCA 3621053653 An. TAUFIQ AZIZ\r\n• ShopeePay 081914170701 An. azizt91\r\n• Dana 089609497390 An. TAUFIQ AZIZ\r\n\r\nTerima kasih atas kepercayaan Anda menggunakan layanan kami.\r\n_____________________________\r\n*_Ini adalah pesan otomatis, jika telah membayar tagihan, abaikan pesan ini_');
+(1, 1, 'tanggal_pasang', '*Informasi Tagihan WiFi Anda*\r\n\r\nHai Bapak/Ibu @{{nama}}\r\nID Pelanggan @{{id_pelanggan}}\r\n\r\nInformasi tagihan Bapak/Ibu bulan ini adalah:\r\nJumlah Tagihan: *Rp@{{tagihan}}*\r\nPeriode Tagihan: *@{{periode}}*\r\n\r\nBayar tagihan anda di salah satu rekening dibawah ini:\r\n• Seabank 901307925714 An. TAUFIQ AZIZ\r\n• BCA 3621053653 An. TAUFIQ AZIZ\r\n• ShopeePay 081914170701 An. azizt91\r\n• Dana 089609497390 An. TAUFIQ AZIZ\r\n\r\nTerima kasih atas kepercayaan Anda menggunakan layanan kami.\r\n_____________________________\r\n*Ini adalah pesan otomatis, jika telah membayar tagihan, abaikan pesan ini*');
 
 -- --------------------------------------------------------
 
@@ -194,7 +195,32 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (52, '2014_10_12_100000_create_password_resets_table', 34),
 (53, '2019_08_19_000000_create_failed_jobs_table', 34),
 (54, '2025_04_22_035638_add_foreign_key_to_tagihan_table', 34),
-(55, '2025_05_22_081519_add_jumlah_dibayar_to_tagihan_table', 35);
+(55, '2025_05_22_081519_add_jumlah_dibayar_to_tagihan_table', 35),
+(56, '2025_07_27_000001_add_coordinates_to_pelanggans', 36),
+(57, '2025_07_30_000001_add_mikrotik_fields_to_pelanggan', 37),
+(58, '2025_07_30_000002_create_mikrotik_configs_table', 37),
+(59, '2025_07_30_112559_add_disconnected_status_to_mikrotik_configs', 38);
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `mikrotik_configs`
+--
+
+CREATE TABLE `mikrotik_configs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL COMMENT 'Nama konfigurasi MikroTik',
+  `ip_address` varchar(255) NOT NULL COMMENT 'IP Address MikroTik',
+  `port` int(11) NOT NULL DEFAULT 8728 COMMENT 'Port API MikroTik',
+  `username` varchar(255) NOT NULL COMMENT 'Username MikroTik',
+  `password` text NOT NULL COMMENT 'Password MikroTik (encrypted)',
+  `is_active` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Status aktif konfigurasi',
+  `last_connected` timestamp NULL DEFAULT NULL COMMENT 'Waktu terakhir terhubung',
+  `connection_status` enum('connected','failed','error','never_tested','disconnected') DEFAULT 'never_tested',
+  `notes` text DEFAULT NULL COMMENT 'Catatan tambahan',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -209,6 +235,18 @@ CREATE TABLE `paket` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `paket`
+--
+
+INSERT INTO `paket` (`id_paket`, `paket`, `tarif`, `created_at`, `updated_at`) VALUES
+('P001', '20 Mbps', 250000, '2024-11-11 00:04:58', '2024-11-11 00:04:58'),
+('P002', '10 Mbps', 200000, '2024-01-27 21:45:02', '2024-01-27 21:51:39'),
+('P003', '8 Mbps', 180000, '2024-01-27 21:45:35', '2024-01-27 21:52:09'),
+('P004', '5 Mbps', 150000, '2024-01-27 21:45:56', '2024-02-19 18:00:31'),
+('P005', '3 Mbps', 100000, '2024-02-19 18:00:21', '2024-02-19 18:04:26'),
+('P006', '1.5 MB', 50000, '2024-02-19 18:04:50', '2024-02-19 18:04:50');
 
 -- --------------------------------------------------------
 
@@ -244,7 +282,11 @@ CREATE TABLE `pelanggan` (
   `id_pelanggan` varchar(16) NOT NULL,
   `nama` varchar(255) NOT NULL,
   `alamat` text NOT NULL,
+  `latitude` decimal(10,7) DEFAULT NULL,
+  `longitude` decimal(10,7) DEFAULT NULL,
+  `house_image` varchar(255) DEFAULT NULL,
   `whatsapp` varchar(15) NOT NULL,
+  `ip_address` varchar(255) DEFAULT NULL,
   `email` varchar(30) NOT NULL,
   `password` varchar(255) NOT NULL,
   `level` varchar(5) NOT NULL,
@@ -254,8 +296,23 @@ CREATE TABLE `pelanggan` (
   `jatuh_tempo` varchar(255) DEFAULT NULL,
   `profile_picture` varchar(255) DEFAULT NULL,
   `status` enum('aktif','nonaktif') NOT NULL,
+  `network_status` enum('up','down','unknown') NOT NULL DEFAULT 'unknown',
+  `last_seen` timestamp NULL DEFAULT NULL,
+  `mikrotik_notes` text DEFAULT NULL,
   `tanggal_pasang` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `pelanggan`
+--
+
+INSERT INTO `pelanggan` (`id_pelanggan`, `nama`, `alamat`, `latitude`, `longitude`, `house_image`, `whatsapp`, `ip_address`, `email`, `password`, `level`, `id_paket`, `created_at`, `updated_at`, `jatuh_tempo`, `profile_picture`, `status`, `network_status`, `last_seen`, `mikrotik_notes`, `tanggal_pasang`) VALUES
+('C001', 'Aufa Itratun Afifah', 'Desa Pamutih', '-6.8533890', '109.5496982', 'public/houses/lDbuRNyg6bDsAZZF4ySikg7YcoKjvOJ37jU46hYr.png', '6289530105003', '10.10.10.64', 'cst1@mail.com', '12345678', 'User', 'P006', '2025-06-14 22:39:11', '2025-07-30 03:54:43', 'Tanggal 15', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-15'),
+('C002', 'Saeful Anwar', 'Desa Pamutih', NULL, NULL, NULL, '62895366892738', NULL, 'cst2@mail.com', '12345678', 'User', 'P005', '2025-06-14 22:40:40', '2025-06-14 22:40:40', 'Tanggal 10', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-10'),
+('C003', 'Devi K A', 'Desa Pamutih', NULL, NULL, NULL, '6287830529041', NULL, 'cst3@mail.com', '12345678', 'User', 'P004', '2025-06-14 22:42:24', '2025-06-14 22:42:24', 'Tanggal 9', NULL, 'aktif', 'unknown', NULL, NULL, '2025-05-09'),
+('C004', 'Eko Wijoyo', 'Desa Pamutih', NULL, NULL, NULL, '6282328680025', NULL, 'cst4@mail.com', '12345678', 'User', 'P003', '2025-06-14 22:43:22', '2025-06-14 22:43:22', 'Tanggal 10', NULL, 'aktif', 'unknown', NULL, NULL, '2025-04-10'),
+('C005', 'Bambang Widodo', 'Desa Pamutih', NULL, NULL, NULL, '6282116568036', NULL, 'cst5@mail.com', '12345678', 'User', 'P002', '2025-06-14 22:44:22', '2025-06-14 22:44:22', 'Tanggal 14', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-14'),
+('C006', 'Taufiq Aziz', 'Desa Pamutih', '-6.8531400', '109.5501300', 'public/houses/X9cKULn5Y6CmVh0Lj3h6mhn5NR6k7tgP0bGcrWO5.png', '6281914170701', '10.10.10.61', 'cst6@mail.com', '12345678', 'User', 'P001', '2025-06-14 22:44:59', '2025-08-03 00:29:48', 'Tanggal 1', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-03');
 
 -- --------------------------------------------------------
 
@@ -315,17 +372,17 @@ INSERT INTO `settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES
 (1, 'favicon', 'public/icons/aGBxAQtrnwvY0u6oNHzfBetq2unFgUUZvpI5QszA.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
 (2, 'logo_admin', 'public/logos/oNYsDMB2tZaUw8hPViTzgIgB1AfWWuE6Yy91hwbN.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
 (3, 'logo_pelanggan', 'public/logos/B2hEgzbzKqKmcCOHJRpuBkcoISXXCK7oZG2618Io.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
-(4, 'sidebar_logo', 'public/logos/kS1WBGaS7ffyzsRR2JlKYr2PcVmUouHMUO0jEg9p.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
+(4, 'sidebar_logo', 'public/logos/6KSbhSkv0jXEyQnurHn5EzQiJ5zY0RxoPKKyLsUr.png', '2025-02-19 22:59:53', '2025-07-31 12:16:56'),
 (5, 'receipt_logo', 'public/logos/eo6LgLLrHmUFdo2Ggzdgqo5i1otPTauunRYnVJpm.png', '2025-02-19 22:59:53', '2025-03-29 23:23:04'),
-(6, 'sidebar_text', 'BayarDong', '2025-02-19 22:59:53', '2025-03-18 17:01:10'),
+(6, 'sidebar_text', 'Selinggonet', '2025-02-19 22:59:53', '2025-06-14 22:47:05'),
 (7, 'company_address', 'Pamutih 52371', '2025-02-19 22:59:53', '2025-02-19 22:59:53'),
 (8, 'whatsapp_number', '081914170701', '2025-02-19 22:59:53', '2025-02-19 22:59:53'),
-(9, 'pwa_name', 'BayarDong', '2025-02-19 22:59:53', '2025-03-18 17:01:10'),
-(10, 'pwa_short_name', 'BayarDong', '2025-02-19 22:59:53', '2025-03-18 17:01:10'),
+(9, 'pwa_name', 'Selinggonet', '2025-02-19 22:59:53', '2025-06-14 22:47:05'),
+(10, 'pwa_short_name', 'Selinggonet', '2025-02-19 22:59:53', '2025-06-14 22:47:05'),
 (11, 'pwa_description', 'Sistem Manajemen Tagihan Pembayaran Internet', '2025-02-19 22:59:53', '2025-03-29 23:29:17'),
 (12, 'pwa_logo', 'public/logos/jLcSetpiMnBMg8Z2zqhT6oCpLD0dUMEIudukgF0S.png', '2025-02-19 22:59:53', '2025-03-30 00:16:50'),
-(13, 'app_name_admin', 'BayarDong', '2025-03-18 17:01:10', '2025-03-18 17:01:10'),
-(14, 'app_name_pelanggan', 'BayarDong', '2025-03-18 17:01:10', '2025-03-18 17:01:10');
+(13, 'app_name_admin', 'Selinggonet', '2025-03-18 17:01:10', '2025-06-14 22:47:05'),
+(14, 'app_name_pelanggan', 'Selinggonet', '2025-03-18 17:01:10', '2025-06-14 22:47:05');
 
 -- --------------------------------------------------------
 
@@ -347,6 +404,24 @@ CREATE TABLE `tagihan` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `tagihan`
+--
+
+INSERT INTO `tagihan` (`id`, `reference`, `bulan`, `tahun`, `id_pelanggan`, `tagihan`, `jumlah_dibayar`, `status`, `tgl_bayar`, `pembayaran_via`, `created_at`, `updated_at`) VALUES
+(1504, 'DEV-T35589248084FDSX3', 6, 2025, 'C001', 50000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:57:01'),
+(1505, NULL, 6, 2025, 'C002', 100000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1506, NULL, 6, 2025, 'C003', 150000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1507, NULL, 6, 2025, 'C004', 180000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1508, NULL, 6, 2025, 'C005', 200000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1509, NULL, 6, 2025, 'C006', 250000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+(1510, NULL, 7, 2025, 'C001', 50000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
+(1511, NULL, 7, 2025, 'C002', 100000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
+(1512, NULL, 7, 2025, 'C003', 150000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
+(1513, NULL, 7, 2025, 'C004', 180000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
+(1514, NULL, 7, 2025, 'C005', 200000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
+(1515, 'DEV-T35589264453CRVF4', 7, 2025, 'C006', 250000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:58:14');
 
 -- --------------------------------------------------------
 
@@ -372,7 +447,7 @@ CREATE TABLE `tripay_config` (
 --
 
 INSERT INTO `tripay_config` (`id`, `is_enabled`, `api_key`, `private_key`, `merchant_code`, `payment_channel_url`, `transaction_create_url`, `transaction_detail_url`, `created_at`, `updated_at`) VALUES
-(1, 1, 'HZBZ9xwUQQJ8w8klf5yVKviG5fZbPDMzU1COS78O', '395iV-hrDrC-i4Yj0-eUuht-50iFL', 'T35832', 'https://tripay.co.id/api/merchant/payment-channel', 'https://tripay.co.id/api/transaction/create', 'https://tripay.co.id/api/transaction/detail', '2025-02-15 01:17:53', '2025-03-29 23:07:21');
+(1, 1, 'DEV-mhY2fWq180nc1vn6RhV57C0RIffEO56DVe7sJlwB', 'bIUJE-9OykS-d0L1c-cmIiW-axufz', 'T35589', 'https://tripay.co.id/api-sandbox/merchant/payment-channel', 'https://tripay.co.id/api-sandbox/transaction/create', 'https://tripay.co.id/api-sandbox/transaction/detail', '2025-02-15 01:17:53', '2025-06-19 03:48:03');
 
 -- --------------------------------------------------------
 
@@ -391,6 +466,13 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `users`
+--
+
+INSERT INTO `users` (`id`, `nama`, `email`, `password`, `profile_picture`, `level`, `created_at`, `updated_at`, `remember_token`) VALUES
+(5, 'Admin', 'admin@gmail.com', '$2y$10$mnvJ6YKSHGQ2hWGPjElE0OjHLJJakOo1hEWvJNxJCpMTwk1V5H8Re', NULL, 'Admin', '2025-06-19 04:22:48', '2025-06-19 04:22:48', NULL);
 
 --
 -- Indexes for dumped tables
@@ -439,6 +521,14 @@ ALTER TABLE `fonnte_notification_settings`
 --
 ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `mikrotik_configs`
+--
+ALTER TABLE `mikrotik_configs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mikrotik_configs_ip_address_port_index` (`ip_address`,`port`),
+  ADD KEY `mikrotik_configs_is_active_index` (`is_active`);
 
 --
 -- Indeks untuk tabel `paket`
@@ -537,7 +627,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT untuk tabel `fonnte`
 --
 ALTER TABLE `fonnte`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT untuk tabel `fonnte_notification_settings`
@@ -549,7 +639,13 @@ ALTER TABLE `fonnte_notification_settings`
 -- AUTO_INCREMENT untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+
+--
+-- AUTO_INCREMENT untuk tabel `mikrotik_configs`
+--
+ALTER TABLE `mikrotik_configs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `pengeluarans`
@@ -573,13 +669,13 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT untuk tabel `tagihan`
 --
 ALTER TABLE `tagihan`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1504;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1516;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

@@ -40,3 +40,5 @@
 
     <!-- Custom scripts for spinner-->
     <script src="{{ asset('sneat') }}/assets/vendor/js/script.js"></script>
+
+    @stack('scripts')

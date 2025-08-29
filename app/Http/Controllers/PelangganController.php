@@ -14,31 +14,34 @@ use App\Imports\PelangganImport;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-
+use App\Services\MikrotikService;
+use App\Models\MikrotikConfig;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class PelangganController extends Controller
 {
 
-	public function index()
-	{
+    public function index()
+    {
         $pelanggan = Pelanggan::all();
         $paket = Paket::all();
         $status = ['aktif', 'nonaktif'];
         return view('pelanggan.index', compact('pelanggan', 'paket', 'status'));
 
-	}
+    }
 
-	public function aktif()
-	{
-		$pelanggan = Pelanggan::where('status', 'aktif')->get();
-		return view('pelanggan.aktif', compact('pelanggan'));
-	}
+    public function aktif()
+    {
+        $pelanggan = Pelanggan::where('status', 'aktif')->get();
+        return view('pelanggan.aktif', compact('pelanggan'));
+    }
 
-	public function nonaktif()
-	{
-		$pelanggan = Pelanggan::where('status', 'nonaktif')->get();
-		return view('pelanggan.nonaktif', compact('pelanggan'));
-	}
+    public function nonaktif()
+    {
+        $pelanggan = Pelanggan::where('status', 'nonaktif')->get();
+        return view('pelanggan.nonaktif', compact('pelanggan'));
+    }
 
 
     public function tambah()
@@ -73,106 +76,124 @@ class PelangganController extends Controller
         $whatsapp = $request->whatsapp;
         if (!Str::startsWith($whatsapp, '62')) {
             $whatsapp = '62' . ltrim($whatsapp, '0');
-    }
+        }
         $request->validate([
-        'whatsapp' => 'required|unique:pelanggan,whatsapp',
+            'whatsapp' => 'required|unique:pelanggan,whatsapp',
+            'ip_address' => 'nullable|ip|unique:pelanggan,ip_address',
         ]);//new
 
-    // Password acak
-    $pass_acak = "12345678";
+        // Password acak
+        $pass_acak = "12345678";
 
-    // Data Pelanggan
-    $data = [
-        'id_pelanggan' => $id_pelanggan,
-        'nama' => $request->nama,
-        'alamat' => $request->alamat,
-        'whatsapp' => $whatsapp,
-        'email' => $email,
-        'password' => $pass_acak,
-        'password_hash' => Hash::make($pass_acak),
-        'level' => 'User',
-        'id_paket' => $request->id_paket,
-        'jatuh_tempo' => $request->jatuh_tempo,
-        'tanggal_pasang' => $request->tanggal_pasang,
-        'status' => $request->status ?? 'aktif',
-    ];
+        // Data Pelanggan
+        $data = [
+            'id_pelanggan' => $id_pelanggan,
+            'nama' => $request->nama,
+            'alamat' => $request->alamat,
+            'whatsapp' => $whatsapp,
+            'email' => $email,
+            'password' => $pass_acak,
+            'password_hash' => Hash::make($pass_acak),
+            'level' => 'User',
+            'id_paket' => $request->id_paket,
+            'jatuh_tempo' => $request->jatuh_tempo,
+            'tanggal_pasang' => $request->tanggal_pasang,
+            'status' => $request->status ?? 'aktif',
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'ip_address' => $request->ip_address,
+        ];
 
-    Pelanggan::create($data);
-    Alert::success('Sukses', 'Data berhasil disimpan');
-    return redirect()->route('pelanggan');
+        if ($request->hasFile('house_image')) {
+            $path = $request->file('house_image')->store('public/houses');
+            $data['house_image'] = $path;
+        }
+
+        Pelanggan::create($data);
+        Alert::success('Sukses', 'Data berhasil disimpan');
+        return redirect()->route('pelanggan');
     }
 
-	public function edit($id_pelanggan)
-	{
-		$pelanggan = Pelanggan::find($id_pelanggan);
-		$paket = Paket::get();
-		$status = ['aktif', 'nonaktif'];
-		return view('pelanggan.form', compact('pelanggan', 'paket', 'status'));
-	}
+    public function edit($id_pelanggan)
+    {
+        $pelanggan = Pelanggan::find($id_pelanggan);
+        $paket = Paket::get();
+        $status = ['aktif', 'nonaktif'];
+        return view('pelanggan.form', compact('pelanggan', 'paket', 'status'));
+    }
 
-	public function update($id_pelanggan, Request $request)
-	{
-		$request->validate([
+    public function update($id_pelanggan, Request $request)
+    {
+        $request->validate([
             'whatsapp' => 'required|unique:pelanggan,whatsapp,' . $id_pelanggan . ',id_pelanggan',
             'email' => 'required|email|unique:pelanggan,email,' . $id_pelanggan . ',id_pelanggan',
             'password' => 'nullable|min:8',
+            'ip_address' => 'nullable|ip|unique:pelanggan,ip_address,' . $id_pelanggan . ',id_pelanggan',
         ]);//new
-        
+
         $data = [
-			'nama' => $request->nama,
-			'alamat' => $request->alamat,
-			'whatsapp' => $request->whatsapp,
-			'id_paket' => $request->id_paket,
-			'jatuh_tempo' => $request->jatuh_tempo,
+            'nama' => $request->nama,
+            'alamat' => $request->alamat,
+            'whatsapp' => $request->whatsapp,
+            'id_paket' => $request->id_paket,
+            'jatuh_tempo' => $request->jatuh_tempo,
             'tanggal_pasang' => $request->tanggal_pasang,
-			'status' => $request->status,
+            'status' => $request->status,
             'email' => $request->email,
-		];
+            'longitude' => $request->longitude,
+            'latitude' => $request->latitude,
+            'ip_address' => $request->ip_address,
+        ];
 
         // Jika ada password baru, update
         if (!empty($request->password)) {
             $data['password'] = $request->password; // Jika tidak menggunakan hashing
         }
 
-		Pelanggan::where('id_pelanggan', $id_pelanggan)->update($data);
-		Alert::success('Sukses', 'Data berhasil diedit');
-		return redirect()->route('pelanggan');
-	}
+        if ($request->hasFile('house_image')) {
+            $path = $request->file('house_image')->store('public/houses');
+            $data['house_image'] = $path;
+        }
+
+        Pelanggan::where('id_pelanggan', $id_pelanggan)->update($data);
+        Alert::success('Sukses', 'Data berhasil diedit');
+        return redirect()->route('pelanggan');
+    }
 
 
-	public function hapus($id_pelanggan)
-	{
-		$pelanggan = Pelanggan::find($id_pelanggan);
+    public function hapus($id_pelanggan)
+    {
+        $pelanggan = Pelanggan::find($id_pelanggan);
 
-		if ($pelanggan) {
-			$pelanggan->delete();
-			Alert::success('Sukses', 'Tagihan berhasil dihapus');
-		} else {
-			Alert::error('Error', 'Data tidak ditemukan');
-		}
+        if ($pelanggan) {
+            $pelanggan->delete();
+            Alert::success('Sukses', 'Tagihan berhasil dihapus');
+        } else {
+            Alert::error('Error', 'Data tidak ditemukan');
+        }
 
-		return redirect()->route('pelanggan');
-	}
+        return redirect()->route('pelanggan');
+    }
 
-	public function showDashboard()
-	{
-		$jumlah_pelanggan = Pelanggan::count();
-		return view('dashboard', compact('jumlah_pelanggan'));
-	}
+    public function showDashboard()
+    {
+        $jumlah_pelanggan = Pelanggan::count();
+        return view('dashboard', compact('jumlah_pelanggan'));
+    }
 
-	public function show($id_pelanggan)
-	{
-		$pelanggan = Pelanggan::findOrFail($id_pelanggan);
-		$tagihanBelumLunas = $pelanggan->tagihan()->where('status', 'BL')->get();
+    public function show($id_pelanggan)
+    {
+        $pelanggan = Pelanggan::findOrFail($id_pelanggan);
+        $tagihanBelumLunas = $pelanggan->tagihan()->where('status', 'BL')->get();
         $pelanggan->tanggal_pasang = Carbon::parse($pelanggan->tanggal_pasang)->translatedFormat('d F Y');
-		return view('pelanggan.detail', compact('pelanggan', 'tagihanBelumLunas'));
-	}
+        return view('pelanggan.detail', compact('pelanggan', 'tagihanBelumLunas'));
+    }
 
-	public function profile($id_pelanggan)
-	{
-		$pelanggan = Pelanggan::findOrFail($id_pelanggan);
-		return view ('pelanggan.profile', compact('pelanggan'));
-	}
+    public function profile($id_pelanggan)
+    {
+        $pelanggan = Pelanggan::findOrFail($id_pelanggan);
+        return view('pelanggan.profile', compact('pelanggan'));
+    }
 
     public function export()
     {
@@ -188,7 +209,234 @@ class PelangganController extends Controller
         Excel::import(new PelangganImport, $request->file('file'));
 
         Alert::success('Sukses', 'Data berhasil diimport!');
-		return redirect()->route('pelanggan');
+        return redirect()->route('pelanggan');
+    }
+
+    /**
+     * Update IP Address for customer
+     */
+    public function updateIP(Request $request, $id_pelanggan)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'ip_address' => 'nullable|ip'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Format IP address tidak valid'
+                ], 400);
+            }
+
+            $pelanggan = Pelanggan::find($id_pelanggan);
+            if (!$pelanggan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pelanggan tidak ditemukan'
+                ], 404);
+            }
+
+            $pelanggan->update([
+                'ip_address' => $request->ip_address,
+                'network_status' => null, // Reset status when IP changed
+                'last_seen' => null
+            ]);
+
+            Log::info("IP Address updated for customer {$id_pelanggan}: {$request->ip_address}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'IP Address berhasil diupdate',
+                'data' => [
+                    'ip_address' => $request->ip_address,
+                    'customer_id' => $id_pelanggan
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error updating IP for customer {$id_pelanggan}: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat update IP address'
+            ], 500);
+        }
+    }
+
+    /**
+     * Ping customer IP address
+     */
+    public function pingIP(Request $request, $id_pelanggan)
+    {
+        try {
+            $pelanggan = Pelanggan::find($id_pelanggan);
+            if (!$pelanggan || !$pelanggan->ip_address) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'IP address tidak ditemukan'
+                ], 404);
+            }
+
+            $ip = $pelanggan->ip_address;
+            $startTime = microtime(true);
+
+            // Ping using system ping command
+            $output = [];
+            $returnCode = 0;
+
+            if (PHP_OS_FAMILY === 'Windows') {
+                exec("ping -n 1 -w 3000 {$ip}", $output, $returnCode);
+            } else {
+                exec("ping -c 1 -W 3 {$ip}", $output, $returnCode);
+            }
+
+            $endTime = microtime(true);
+            $responseTime = round(($endTime - $startTime) * 1000, 2);
+
+            $isOnline = ($returnCode === 0);
+
+            // Update network status
+            $pelanggan->update([
+                'network_status' => $isOnline ? 'up' : 'down',
+                'last_seen' => $isOnline ? now() : $pelanggan->last_seen
+            ]);
+
+            return response()->json([
+                'success' => $isOnline,
+                'message' => $isOnline ? 'Host dapat dijangkau' : 'Host tidak dapat dijangkau',
+                'ip' => $ip,
+                'status' => $isOnline ? 'Online' : 'Offline',
+                'response_time' => $isOnline ? $responseTime . ' ms' : null,
+                'output' => implode("\n", $output)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error pinging IP for customer {$id_pelanggan}: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat melakukan ping'
+            ], 500);
+        }
+    }
+
+    /**
+     * Sync network status from MikroTik netwatch
+     */
+    public function syncNetworkStatus(Request $request)
+    {
+        try {
+            // Get connected MikroTik configurations
+            $mikrotikConfigs = MikrotikConfig::where('connection_status', 'connected')->get();
+
+            if ($mikrotikConfigs->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada MikroTik yang terhubung'
+                ], 400);
+            }
+
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($mikrotikConfigs as $config) {
+                try {
+                    $mikrotik = new MikrotikService();
+
+                    // Connect to MikroTik
+                    if (!$mikrotik->connect($config->ip_address, $config->port, $config->username, $config->getDecryptedPasswordAttribute())) {
+                        $errors[] = "Gagal koneksi ke {$config->name}";
+                        continue;
+                    }
+
+                    // Get netwatch entries
+                    $netwatchEntries = $mikrotik->getNetwatchEntries();
+
+                    if (empty($netwatchEntries)) {
+                        $errors[] = "Tidak ada netwatch entries di {$config->name}";
+                        continue;
+                    }
+
+                    // Update customer network status based on netwatch
+                    foreach ($netwatchEntries as $entry) {
+                        if (isset($entry['host']) && isset($entry['status'])) {
+                            $pelanggan = Pelanggan::where('ip_address', $entry['host'])->first();
+
+                            if ($pelanggan) {
+                                $networkStatus = ($entry['status'] === 'up') ? 'up' : 'down';
+                                $lastSeen = ($networkStatus === 'up') ? now() : $pelanggan->last_seen;
+
+                                $pelanggan->update([
+                                    'network_status' => $networkStatus,
+                                    'last_seen' => $lastSeen,
+                                    'mikrotik_notes' => "Synced from {$config->name} at " . now()->format('Y-m-d H:i:s')
+                                ]);
+
+                                $updatedCount++;
+                                Log::info("Updated network status for customer {$pelanggan->id_pelanggan} (IP: {$entry['host']}) to {$networkStatus}");
+                            }
+                        }
+                    }
+
+                    $mikrotik->disconnect();
+
+                } catch (\Exception $e) {
+                    $errors[] = "Error dengan {$config->name}: " . $e->getMessage();
+                    Log::error("Error syncing from MikroTik {$config->name}: " . $e->getMessage());
+                }
+            }
+
+            $message = "Berhasil sync {$updatedCount} pelanggan";
+            if (!empty($errors)) {
+                $message .= ". Errors: " . implode(', ', $errors);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error in syncNetworkStatus: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat sinkronisasi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get network status dashboard data
+     */
+    public function getNetworkStatusData()
+    {
+        try {
+            $totalCustomers = Pelanggan::where('status', 'aktif')->count();
+            $onlineCustomers = Pelanggan::where('status', 'aktif')->where('network_status', 'up')->count();
+            $offlineCustomers = Pelanggan::where('status', 'aktif')->where('network_status', 'down')->count();
+            $unknownCustomers = Pelanggan::where('status', 'aktif')->whereNull('network_status')->count();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total' => $totalCustomers,
+                    'online' => $onlineCustomers,
+                    'offline' => $offlineCustomers,
+                    'unknown' => $unknownCustomers,
+                    'online_percentage' => $totalCustomers > 0 ? round(($onlineCustomers / $totalCustomers) * 100, 1) : 0
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error getting network status data'
+            ], 500);
+        }
     }
 
 }

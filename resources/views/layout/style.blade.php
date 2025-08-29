@@ -6,6 +6,7 @@
     />
     <title>@yield('title')</title>
     <meta name="description" content="" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('template/img/sn-blue.png') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -61,4 +62,5 @@
         }
     </style>
 
+    @stack('styles')
 </head>

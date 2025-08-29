@@ -52,7 +52,7 @@
                             <input class="form-control" id="inputEmailAddress" name="email" type="email" placeholder="Enter your email address" value="{{ $pelanggan->email }}" />
                         </div>
                         <div class="mb-3">
-                            <label class="small mb-1" for="newPassword">New Password (Password harus berupa 4 digit angka)</label>
+                            <label class="small mb-1" for="newPassword">New Password</label>
                             <input class="form-control" id="password" name="password" type="password" placeholder="Enter new password" />
                         </div>
                         <!-- Save changes button-->

@@ -1,3 +1,11 @@
+@php($embed = request()->query('embed'))
+@if($embed)
+    @include('layout.style')
+    <body>
+        @yield('content')
+        @include('layout.script')
+    </body>
+@else
 <!DOCTYPE html>
 <html
   lang="en"
@@ -24,5 +32,7 @@
       <div class="layout-overlay layout-menu-toggle"></div>
     </div>
    @include('layout.script')
+   @stack('scripts')
   </body>
 </html>
+@endif

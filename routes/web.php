@@ -19,6 +19,8 @@ use App\Exports\TagihanExport;
 use App\Http\Controllers\FonnteController;
 use App\Http\Controllers\FonnteNotificationController;
 use App\Http\Controllers\Auth\ManualResetController;
+use App\Http\Controllers\MapController;
+use App\Http\Controllers\MikrotikController;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -83,6 +85,14 @@ Route::middleware('auth')->group(function () {
         Route::put('edit/{id_pelanggan}', 'update')->name('pelanggan.update');
         Route::delete('hapus/{id_pelanggan}', 'hapus')->name('pelanggan.hapus');
         Route::get('pelanggan/{id_pelanggan}', 'show')->name('pelanggan.show');
+        Route::get('aktif', 'aktif')->name('pelanggan.aktif');
+        Route::get('nonaktif', 'nonaktif')->name('pelanggan.nonaktif');
+
+        // IP Address Management Routes
+        Route::post('{id_pelanggan}/update-ip', 'updateIP')->name('pelanggan.update-ip');
+        Route::post('{id_pelanggan}/ping', 'pingIP')->name('pelanggan.ping');
+        Route::post('sync-network-status', 'syncNetworkStatus')->name('pelanggan.sync-network-status');
+        Route::get('network-status-data', 'getNetworkStatusData')->name('pelanggan.network-status-data');
     });
 
     Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
@@ -95,6 +105,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('banks', BankController::class);
     Route::resource('pengeluaran', PengeluaranController::class)->except(['show']);
     Route::post('/callback', [TripayCallbackController::class, 'handle']);
+
+    Route::get('/maps', [\App\Http\Controllers\MapController::class,'index'])->name('maps.index');
+    Route::get('/maps/markers', [\App\Http\Controllers\MapController::class,'markers'])->name('maps.markers');
+    Route::post('/maps/refresh-network-status', [\App\Http\Controllers\MapController::class,'refreshNetworkStatus'])->name('maps.refresh-network-status');
 });
 
 Route::get('/pelanggan-login', [PelangganAuthController::class, 'showLoginForm'])->name('pelanggan.login');
@@ -139,12 +153,12 @@ Route::get('/pelanggan/nonaktif', [PelangganController::class, 'nonaktif'])->nam
 Route::get('/paket/view', [PaketController::class, 'viewPaket'])->name('paket.view');
 Route::resource('pengeluaran', PengeluaranController::class)->except(['show']);
 
-Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
-Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 Route::post('/laporan/export', [LaporanController::class, 'export']);
 Route::post('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');
+
+Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
 Route::get('/fonnte', [FonnteController::class, 'index'])->name('fonnte.index');
 Route::post('/fonnte/store-token', [FonnteController::class, 'storeToken'])->name('fonnte.storeToken');
@@ -158,14 +172,18 @@ Route::post('/fonnte/notification/send', [FonnteNotificationController::class, '
 Route::get('/pelanggan/export', [PelangganController::class, 'export'])->name('pelanggan.export');
 Route::post('/pelanggan/import', [PelangganController::class, 'import'])->name('pelanggan.import');
 
-
-
-
-
-
-
-
-
-
-
-
+// MikroTik Routes
+Route::middleware('auth')->prefix('mikrotik')->group(function () {
+    Route::get('/', [MikrotikController::class, 'index'])->name('mikrotik.index');
+    Route::get('/create', [MikrotikController::class, 'create'])->name('mikrotik.create');
+    Route::post('/', [MikrotikController::class, 'store'])->name('mikrotik.store');
+    Route::get('/{mikrotik}/edit', [MikrotikController::class, 'edit'])->name('mikrotik.edit');
+    Route::put('/{mikrotik}', [MikrotikController::class, 'update'])->name('mikrotik.update');
+    Route::delete('/{mikrotik}', [MikrotikController::class, 'destroy'])->name('mikrotik.destroy');
+    Route::post('/{mikrotik}/test', [MikrotikController::class, 'test'])->name('mikrotik.test');
+    Route::post('/{mikrotik}/disconnect', [MikrotikController::class, 'disconnect'])->name('mikrotik.disconnect');
+    Route::post('/sync-netwatch', [MikrotikController::class, 'syncNetwatch'])->name('mikrotik.sync-netwatch');
+    Route::post('/add-to-netwatch', [MikrotikController::class, 'addToNetwatch'])->name('mikrotik.add-to-netwatch');
+    Route::post('/remove-from-netwatch', [MikrotikController::class, 'removeFromNetwatch'])->name('mikrotik.remove-from-netwatch');
+    Route::get('/network-status', [MikrotikController::class, 'getNetworkStatus'])->name('mikrotik.network-status');
+});

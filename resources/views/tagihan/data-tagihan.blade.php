@@ -94,7 +94,7 @@
             </div>
             @else
             <div class="text-center">
-                <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="http://127.0.0.1:8000/template/img/empty.svg" alt="...">
+                <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="{{ asset('template/img/empty.svg') }}">
                 <p>Tidak ada tagihan.</p>
             </div>
             @endif

@@ -100,4 +100,3 @@ class BankController extends Controller
         return redirect()->route('banks.index');
     }
 }
-
