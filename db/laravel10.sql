@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
+<<<<<<< HEAD
 -- Waktu pembuatan: 29 Agu 2025 pada 13.49
+=======
+-- Waktu pembuatan: 19 Jun 2025 pada 13.21
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
 -- Versi server: 10.4.27-MariaDB
 -- Versi PHP: 8.3.24
 
@@ -111,6 +115,7 @@ CREATE TABLE `fonnte` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+<<<<<<< HEAD
 --
 -- Dumping data untuk tabel `fonnte`
 --
@@ -119,6 +124,8 @@ INSERT INTO `fonnte` (`id`, `token`, `created_at`, `updated_at`) VALUES
 (6, 'q3yqhiRwa2UXzpwGydZ2', NULL, NULL),
 (7, 'q3yqhiRwa2UXzpwGydZ2', NULL, NULL);
 
+=======
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
 -- --------------------------------------------------------
 
 --
@@ -306,6 +313,7 @@ CREATE TABLE `pelanggan` (
 -- Dumping data untuk tabel `pelanggan`
 --
 
+<<<<<<< HEAD
 INSERT INTO `pelanggan` (`id_pelanggan`, `nama`, `alamat`, `latitude`, `longitude`, `house_image`, `whatsapp`, `ip_address`, `email`, `password`, `level`, `id_paket`, `created_at`, `updated_at`, `jatuh_tempo`, `profile_picture`, `status`, `network_status`, `last_seen`, `mikrotik_notes`, `tanggal_pasang`) VALUES
 ('C001', 'Aufa Itratun Afifah', 'Desa Pamutih', '-6.8533890', '109.5496982', 'public/houses/lDbuRNyg6bDsAZZF4ySikg7YcoKjvOJ37jU46hYr.png', '6289530105003', '10.10.10.64', 'cst1@mail.com', '12345678', 'User', 'P006', '2025-06-14 22:39:11', '2025-07-30 03:54:43', 'Tanggal 15', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-15'),
 ('C002', 'Saeful Anwar', 'Desa Pamutih', NULL, NULL, NULL, '62895366892738', NULL, 'cst2@mail.com', '12345678', 'User', 'P005', '2025-06-14 22:40:40', '2025-06-14 22:40:40', 'Tanggal 10', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-10'),
@@ -313,6 +321,15 @@ INSERT INTO `pelanggan` (`id_pelanggan`, `nama`, `alamat`, `latitude`, `longitud
 ('C004', 'Eko Wijoyo', 'Desa Pamutih', NULL, NULL, NULL, '6282328680025', NULL, 'cst4@mail.com', '12345678', 'User', 'P003', '2025-06-14 22:43:22', '2025-06-14 22:43:22', 'Tanggal 10', NULL, 'aktif', 'unknown', NULL, NULL, '2025-04-10'),
 ('C005', 'Bambang Widodo', 'Desa Pamutih', NULL, NULL, NULL, '6282116568036', NULL, 'cst5@mail.com', '12345678', 'User', 'P002', '2025-06-14 22:44:22', '2025-06-14 22:44:22', 'Tanggal 14', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-14'),
 ('C006', 'Taufiq Aziz', 'Desa Pamutih', '-6.8531400', '109.5501300', 'public/houses/X9cKULn5Y6CmVh0Lj3h6mhn5NR6k7tgP0bGcrWO5.png', '6281914170701', '10.10.10.61', 'cst6@mail.com', '12345678', 'User', 'P001', '2025-06-14 22:44:59', '2025-08-03 00:29:48', 'Tanggal 1', NULL, 'aktif', 'unknown', NULL, NULL, '2025-06-03');
+=======
+INSERT INTO `pelanggan` (`id_pelanggan`, `nama`, `alamat`, `whatsapp`, `email`, `password`, `level`, `id_paket`, `created_at`, `updated_at`, `jatuh_tempo`, `profile_picture`, `status`, `tanggal_pasang`) VALUES
+('C001', 'Aufa Itratun Afifah', 'Desa Pamutih', '6289530105003', 'cst1@mail.com', '12345678', 'User', 'P006', '2025-06-14 22:39:11', '2025-06-14 22:39:11', 'Tanggal 15', NULL, 'aktif', '2025-06-15'),
+('C002', 'Saeful Anwar', 'Desa Pamutih', '62895366892738', 'cst2@mail.com', '12345678', 'User', 'P005', '2025-06-14 22:40:40', '2025-06-14 22:40:40', 'Tanggal 10', NULL, 'aktif', '2025-06-10'),
+('C003', 'Devi K A', 'Desa Pamutih', '6287830529041', 'cst3@mail.com', '12345678', 'User', 'P004', '2025-06-14 22:42:24', '2025-06-14 22:42:24', 'Tanggal 9', NULL, 'aktif', '2025-05-09'),
+('C004', 'Eko Wijoyo', 'Desa Pamutih', '6282328680025', 'cst4@mail.com', '12345678', 'User', 'P003', '2025-06-14 22:43:22', '2025-06-14 22:43:22', 'Tanggal 10', NULL, 'aktif', '2025-04-10'),
+('C005', 'Bambang Widodo', 'Desa Pamutih', '6282116568036', 'cst5@mail.com', '12345678', 'User', 'P002', '2025-06-14 22:44:22', '2025-06-14 22:44:22', 'Tanggal 14', NULL, 'aktif', '2025-06-14'),
+('C006', 'Taufiq Aziz', 'Desa Pamutih', '6281914170701', 'cst6@mail.com', '12345678', 'User', 'P001', '2025-06-14 22:44:59', '2025-06-14 22:44:59', 'Tanggal 1', NULL, 'aktif', '2025-06-01');
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
 
 -- --------------------------------------------------------
 
@@ -415,6 +432,7 @@ INSERT INTO `tagihan` (`id`, `reference`, `bulan`, `tahun`, `id_pelanggan`, `tag
 (1506, NULL, 6, 2025, 'C003', 150000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
 (1507, NULL, 6, 2025, 'C004', 180000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
 (1508, NULL, 6, 2025, 'C005', 200000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
+<<<<<<< HEAD
 (1509, NULL, 6, 2025, 'C006', 250000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03'),
 (1510, NULL, 7, 2025, 'C001', 50000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
 (1511, NULL, 7, 2025, 'C002', 100000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
@@ -422,6 +440,9 @@ INSERT INTO `tagihan` (`id`, `reference`, `bulan`, `tahun`, `id_pelanggan`, `tag
 (1513, NULL, 7, 2025, 'C004', 180000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
 (1514, NULL, 7, 2025, 'C005', 200000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:51:20'),
 (1515, 'DEV-T35589264453CRVF4', 7, 2025, 'C006', 250000, 0, 'BL', NULL, 'cash', '2025-07-29 17:51:20', '2025-07-29 17:58:14');
+=======
+(1509, NULL, 6, 2025, 'C006', 250000, 0, 'BL', NULL, 'cash', '2025-06-19 03:56:03', '2025-06-19 03:56:03');
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
 
 -- --------------------------------------------------------
 
@@ -669,13 +690,21 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT untuk tabel `tagihan`
 --
 ALTER TABLE `tagihan`
+<<<<<<< HEAD
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1516;
+=======
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1510;
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
+<<<<<<< HEAD
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+=======
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

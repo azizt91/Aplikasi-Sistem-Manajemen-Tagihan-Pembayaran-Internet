@@ -71,21 +71,37 @@ Aplikasi Sistem Manajemen Tagihan Pembayaran Internet dirancang untuk mempermuda
    php artisan storage:link
    ```
 
-9. **Jalankan aplikasi**:
+9. **Jalankan Database Seeder**:
    ```bash
-   php artisan serve
+   php artisan db:seed --class=NamaSeeder 
    ```
 
+10. **Jalankan aplikasi lokal**:
+    ```bash
+    php artisan serve
+       ```
+
+11. Aplikasi akan dapat diakses biasanya di
+    ```bash
+    http://127.0.0.1:8000
+     ```
+
+12. **Informasi Login Admin Default**:
+    
+    Email: `admin@gmail.com`
+    
+    Password: `password123`
+
+14. **Anda juga bisa membuat akun admin baru langsung dengan langkah seperti dibawah ini**:
+    
+    a. Klik Log in here
+    ![image](https://github.com/user-attachments/assets/f4af2dc1-2e4e-42e9-bee5-1a87f0ee6f5b)
+    b. klik Create an account
+    ![image](https://github.com/user-attachments/assets/776c1153-3a92-4d21-9f46-2e4047a25a66)
+    c. Anda akan diarahkan ke Dashboard Admin jika berhasil membuat akun
+
+
 Selamat, aplikasi siap diakses! 😊  
-
----
-
-### **Untuk Masuk ke Dashboard Admin Anda harus membuat akun baru**
-1. Klik Log in here
-![image](https://github.com/user-attachments/assets/f4af2dc1-2e4e-42e9-bee5-1a87f0ee6f5b)
-2. klik Create an account
-![image](https://github.com/user-attachments/assets/776c1153-3a92-4d21-9f46-2e4047a25a66)
-3. Anda akan diarahkan ke Dashboard Admin jika berhasil membuat akun
 
 ---
 

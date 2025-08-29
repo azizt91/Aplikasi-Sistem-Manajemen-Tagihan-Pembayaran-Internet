@@ -1,5 +1,6 @@
  <!-- Footer -->
 
+<<<<<<< HEAD
  <!-- Donate Button (Floating at Bottom Right) -->
 {{-- <div class="donate-button">
     <a class="nav-link" href="https://saweria.co/azizt91" target="_blank">
@@ -7,6 +8,8 @@
     </a>
 </div> --}}
 
+=======
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
  <footer class="content-footer footer bg-footer-theme">
     <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
       <div class="mb-2 mb-md-0">
@@ -15,10 +18,13 @@
           document.write(new Date().getFullYear());
         </script>
         | Selinggonet
+<<<<<<< HEAD
         {{-- <a href="https://www.instagram.com/azizt91" target="_blank" class="footer-link fw-bolder">
             <img src="/sneat/assets/img/icons/brands/instagram.png" alt="Instagram" style="height: 20px; width: 20px;">
             @azizt91
         </a> --}}
+=======
+>>>>>>> 61197d9900b7c73bbd0202bcc3e4ff74d40a6b01
       </div>
       </div>
     </div>
