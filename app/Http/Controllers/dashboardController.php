@@ -10,7 +10,7 @@ use App\Models\Tagihan;
 use App\Models\Pengeluaran;
 use Carbon\Carbon;
 
-class dashboardController extends Controller
+class DashboardController extends Controller
 {
     // public function index(Request $request)
     // {
@@ -324,7 +324,83 @@ class dashboardController extends Controller
         ]);
     }
 
+    /**
+     * Get data for dashboard charts (Status Pembayaran, Pertumbuhan Pelanggan, Total Aktif)
+     */
+    public function getChartData(Request $request)
+    {
+        $selectedYear = $request->query('tahun', Carbon::now()->year);
+        $selectedMonth = $request->query('bulan', Carbon::now()->month);
 
+        // 1. Status Pembayaran (Donut Chart) - Bulan ini
+        $statusLunas = Tagihan::where('tahun', $selectedYear)
+            ->where('bulan', $selectedMonth)
+            ->where('status', 'LS')
+            ->count();
+
+        $statusBelumBayar = Tagihan::where('tahun', $selectedYear)
+            ->where('bulan', $selectedMonth)
+            ->where('status', '!=', 'LS')
+            ->count();
+
+        // 2. Pertumbuhan Pelanggan (Bar Chart) - 6 bulan terakhir
+        $pelangganBaru = [];
+        $pelangganCabut = [];
+        $labels = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $month = $date->month;
+            $year = $date->year;
+            $labels[] = $date->translatedFormat('M Y');
+
+            // Pelanggan baru (tanggal_pasang pada bulan tersebut)
+            $pelangganBaru[] = Pelanggan::whereYear('tanggal_pasang', $year)
+                ->whereMonth('tanggal_pasang', $month)
+                ->count();
+
+            // Pelanggan cabut (tanggal_cabut pada bulan tersebut)
+            $pelangganCabut[] = Pelanggan::whereYear('tanggal_cabut', $year)
+                ->whereMonth('tanggal_cabut', $month)
+                ->count();
+        }
+
+        // 3. Total Pelanggan Aktif (Line Chart) - 6 bulan terakhir (kumulatif)
+        $totalAktif = [];
+        $labelsAktif = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i)->endOfMonth();
+            $labelsAktif[] = $date->translatedFormat('M Y');
+
+            // Hitung kumulatif pelanggan aktif sampai tanggal tersebut
+            // Pelanggan yang tanggal_pasang <= end of month dan (tanggal_cabut is null atau tanggal_cabut > end of month)
+            $count = Pelanggan::where('tanggal_pasang', '<=', $date)
+                ->where(function($query) use ($date) {
+                    $query->whereNull('tanggal_cabut')
+                        ->orWhere('tanggal_cabut', '>', $date);
+                })
+                ->count();
+
+            $totalAktif[] = $count;
+        }
+
+        return response()->json([
+            'statusPembayaran' => [
+                'lunas' => $statusLunas,
+                'belumBayar' => $statusBelumBayar,
+            ],
+            'pertumbuhanPelanggan' => [
+                'labels' => $labels,
+                'baru' => $pelangganBaru,
+                'cabut' => $pelangganCabut,
+            ],
+            'totalAktif' => [
+                'labels' => $labelsAktif,
+                'data' => $totalAktif,
+            ],
+        ]);
+    }
 
 }
 

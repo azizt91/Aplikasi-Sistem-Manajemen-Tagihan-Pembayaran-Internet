@@ -1,4 +1,4 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title')
 @section('content')
     <div class="row">

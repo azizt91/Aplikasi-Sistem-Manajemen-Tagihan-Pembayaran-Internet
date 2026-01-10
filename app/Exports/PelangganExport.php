@@ -14,7 +14,7 @@ class PelangganExport implements FromQuery, WithHeadings, WithMapping
 
     public function query()
     {
-        return Pelanggan::query()->select('id_pelanggan', 'nama', 'alamat', 'whatsapp', 'email', 'password', 'id_paket', 'status', 'jatuh_tempo', 'tanggal_pasang')->with('paket');;
+        return Pelanggan::query()->select('id_pelanggan', 'nama', 'alamat', 'whatsapp', 'email', 'password', 'id_paket', 'status', 'tanggal_pasang')->with('paket');
     }
 
     public function map($pelanggan): array
@@ -28,8 +28,7 @@ class PelangganExport implements FromQuery, WithHeadings, WithMapping
             $pelanggan->password,
             optional($pelanggan->paket)->paket,
             $pelanggan->status,
-            $pelanggan->jatuh_tempo,
-            \Carbon\Carbon::parse($pelanggan->tanggal_pasang)->translatedFormat('d F Y'), // Format tanggal agar lebih mudah dibaca
+            \Carbon\Carbon::parse($pelanggan->tanggal_pasang)->translatedFormat('d F Y'),
 
         ];
     }
@@ -45,7 +44,6 @@ class PelangganExport implements FromQuery, WithHeadings, WithMapping
             'Password',
             'Paket',
             'Status',
-            'Jatuh Tempo',
             'Tanggal Pasang'
 
         ];

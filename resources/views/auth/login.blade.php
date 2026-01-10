@@ -14,13 +14,17 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Login - Admin</title>
+    <title>Login - {{ settings('app_name') ?? settings('app_name_admin') ?? 'Sistem Tagihan' }}</title>
 
-    <meta name="description" content="" />
+    <meta name="description" content="Sistem Manajemen Tagihan Pembayaran Internet" />
 
     <!-- Favicon -->
-    {{-- <link rel="icon" type="image/x-icon" href="{{ asset('template/img/sn-blue.png') }}" /> --}}
     <link rel="icon" type="image/x-icon" href="{{ asset(Storage::url(settings('favicon'))) }}" />
+
+    <!-- PWA  -->
+    <meta name="theme-color" content="#6777ef"/>
+    <link rel="apple-touch-icon" href="{{ asset(Storage::url(settings('pwa_logo'))) }}">
+    <link rel="manifest" href="{{ asset('/manifest.json') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -30,7 +34,7 @@
       rel="stylesheet"
     />
 
-    <!-- Icons. Uncomment required icon fonts -->
+    <!-- Icons -->
     <link rel="stylesheet" href="{{ asset('sneat') }}/assets/vendor/fonts/boxicons.css" />
 
     <!-- Core CSS -->
@@ -42,13 +46,10 @@
     <link rel="stylesheet" href="{{ asset('sneat') }}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
     <!-- Page CSS -->
-    <!-- Page -->
     <link rel="stylesheet" href="{{ asset('sneat') }}/assets/vendor/css/pages/page-auth.css" />
+    
     <!-- Helpers -->
     <script src="{{ asset('sneat') }}/assets/vendor/js/helpers.js"></script>
-
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{{ asset('sneat') }}/assets/js/config.js"></script>
   </head>
 
@@ -57,10 +58,10 @@
 
     <div class="authentication-wrapper authentication-cover">
         <div class="authentication-inner row m-0">
-          <!-- /Left Text -->
+          <!-- Left Text -->
           <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center p-5">
             <div class="w-100 d-flex justify-content-center">
-              <img src="{{ asset('sneat') }}/assets/img/sneat2.png" class="img-fluid" alt="Login image" width="700" data-app-dark-img="illustrations/boy-with-rocket-dark.png" data-app-light-img="illustrations/boy-with-rocket-light.png">
+              <img src="{{ asset('sneat') }}/assets/img/sneat2.png" class="img-fluid" alt="Login image" width="700">
             </div>
           </div>
           <!-- /Left Text -->
@@ -70,142 +71,79 @@
             <div class="w-px-400 mx-auto">
               <!-- Logo -->
               <div class="app-brand mb-5">
-                <a href="index.html" class="app-brand-link gap-2">
+                <a href="/" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
-
-      {{-- <img src="{{ asset('template/img/sn-blue.png') }}" alt="Wifi Logo" style="width: 30px; height: 30px;"> --}}
-      <img src="{{ asset(Storage::url(settings('logo_admin'))) }}" alt="Logo" style="width: 30px; height: 30px;">
-    </span>
-                  {{-- <span class="app-brand-text demo text-body fw-bold">Selinggonet</span> --}}
-                  <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name_admin') }}</span>
+                    <img src="{{ asset(Storage::url(settings('app_logo') ?? settings('logo_admin'))) }}" alt="Logo" style="width: 30px; height: 30px;">
+                  </span>
+                  <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name') ?? settings('app_name_admin') ?? 'Sistem Tagihan' }}</span>
                 </a>
               </div>
               <!-- /Logo -->
-              <h4 class="mb-2">Welcome to {{ settings('app_name_admin') }}! 👋</h4>
-              <p class="mb-4">Sistem Manajemen Tagihan Pembayaran Internet</p>
-
-              {{-- <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('login') }}">
-                @csrf
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email </label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email or username" autofocus>
-                    @error('email')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                </div>
-                <div class="mb-3 form-password-toggle">
-                    <div class="d-flex justify-content-between">
-                        <label class="form-label" for="password">Password</label>
-                        @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}">
-                            <small>Forgot Password?</small>
-                        </a>
-                        @endif
-                    </div>
-                    <div class="input-group input-group-merge">
-                        <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
-                        <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
-                        @error('password')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember-me">
-                        <label class="form-check-label" for="remember-me">
-                            Remember Me
-                        </label>
-                    </div>
-                </div>
-                @if(session('error'))
-                    <div class="alert alert-danger" role="alert">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                <button type="submit" class="btn btn-primary d-grid w-100">
-                    Log in
-                </button>
-              </form> --}}
+              
+              <h4 class="mb-2">Selamat Datang! 👋</h4>
+              <p class="mb-4">Silakan login untuk melanjutkan</p>
 
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('login') }}" onsubmit="return validateForm()">
                 @csrf
+                
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email or username" autofocus value="{{ old('email') }}">
-
+                    <input type="email" class="form-control @if(session('error') && strpos(session('error'), 'Email') !== false) is-invalid @endif" 
+                           id="email" name="email" placeholder="Masukkan email Anda" autofocus value="{{ old('email') }}">
                     @if(session('error') && strpos(session('error'), 'Email') !== false)
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ session('error') }}</strong>
-                        </span>
-                    @elseif($errors->has('email'))
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $errors->first('email') }}</strong>
-                        </span>
+                        <div class="invalid-feedback">{{ session('error') }}</div>
                     @endif
                 </div>
+                
                 <div class="mb-3 form-password-toggle">
                     <div class="d-flex justify-content-between">
                         <label class="form-label" for="password">Password</label>
-<!--                         @if (Route::has('password.manual.form')) -->
-                            <a href="{{ route('password.manual.form') }}">
-                                <small>Forgot Password?</small>
-                            </a>
-<!--                         @endif -->
+                        <a href="{{ route('password.manual.form') }}">
+                            <small>Lupa Password?</small>
+                        </a>
                     </div>
                     <div class="input-group input-group-merge">
-                        <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
-                        <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
-
-                        @if(session('error') && strpos(session('error'), 'Password') !== false)
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ session('error') }}</strong>
-                            </span>
-                        @elseif($errors->has('password'))
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $errors->first('password') }}</strong>
-                            </span>
-                        @endif
+                        <input type="password" id="password" 
+                               class="form-control @if(session('error') && strpos(session('error'), 'Password') !== false) is-invalid @endif" 
+                               name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
+                        <span class="input-group-text cursor-pointer" onclick="togglePassword()">
+                            <i class="bx bx-hide" id="toggleIcon"></i>
+                        </span>
                     </div>
+                    @if(session('error') && strpos(session('error'), 'Password') !== false)
+                        <div class="invalid-feedback d-block">{{ session('error') }}</div>
+                    @endif
                 </div>
+                
                 <div class="mb-3">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember-me">
-                        <label class="form-check-label" for="remember-me">
-                            Remember Me
+                        <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">
+                            Ingat Saya
                         </label>
                     </div>
                 </div>
 
-                @if(session('error') && strpos(session('error'), 'Email atau password') === false)
+                @if(session('error') && strpos(session('error'), 'Email') === false && strpos(session('error'), 'Password') === false)
                     <div class="alert alert-danger" role="alert">
                         {{ session('error') }}
                     </div>
                 @endif
 
                 <button type="submit" class="btn btn-primary d-grid w-100">
-                    Log in
+                    <span class="d-flex align-items-center justify-content-center">
+                        <i class="bx bx-log-in me-2"></i> Masuk
+                    </span>
                 </button>
-            </form>
-                
-                <p class="text-center">
-                <span>New on our platform?</span>
-                @if (Route::has('register'))
-                <a href="{{ route('register') }}">
-                    <span>Create an account</span>
-                </a>
-                 @endif
-            </p>
+              </form>
 
             </div>
           </div>
+          <!-- /Login -->
+          
           @include('sweetalert::alert')
         </div>
-      </div>
+    </div>
 
     <!-- / Content -->
 
@@ -220,27 +158,46 @@
             }
             return true;
         }
+        
+        function togglePassword() {
+            var passwordInput = document.getElementById('password');
+            var toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bx-hide');
+                toggleIcon.classList.add('bx-show');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bx-show');
+                toggleIcon.classList.add('bx-hide');
+            }
+        }
     </script>
 
-
     <!-- Core JS -->
-    <!-- build:js assets/vendor/js/core.js -->
     <script src="{{ asset('sneat') }}/assets/vendor/libs/jquery/jquery.js"></script>
     <script src="{{ asset('sneat') }}/assets/vendor/libs/popper/popper.js"></script>
     <script src="{{ asset('sneat') }}/assets/vendor/js/bootstrap.js"></script>
     <script src="{{ asset('sneat') }}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-
     <script src="{{ asset('sneat') }}/assets/vendor/js/menu.js"></script>
-    <!-- endbuild -->
-
-    <!-- Vendors JS -->
 
     <!-- Main JS -->
     <script src="{{ asset('sneat') }}/assets/js/main.js"></script>
 
-    <!-- Page JS -->
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- PWA Service Worker -->
+    <script src="{{ asset('/sw.js') }}"></script>
+    <script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").then(
+        (registration) => {
+            console.log("Service worker registration succeeded:", registration);
+        },
+        (error) => {
+            console.error(`Service worker registration failed: ${error}`);
+        },
+        );
+    }
+    </script>
   </body>
 </html>

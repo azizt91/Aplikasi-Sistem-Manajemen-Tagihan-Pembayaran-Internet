@@ -1,7 +1,7 @@
 <?php
 
 
-use App\Http\Controllers\dashboardController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\TagihanController;
 use App\Http\Controllers\UserController;
@@ -21,6 +21,10 @@ use App\Http\Controllers\FonnteNotificationController;
 use App\Http\Controllers\Auth\ManualResetController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MikrotikController;
+use App\Http\Controllers\GenieAcsController;
+use App\Http\Controllers\WifiSettingController;
+use App\Http\Controllers\NotificationSettingController;
+use App\Http\Controllers\Auth\UnifiedLoginController;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -39,19 +43,27 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('auth/pelanggan-login');
+    return redirect('/login');
 });
 
 Route::get('/password/manual/reset', [ManualResetController::class, 'showForm'])->name('password.manual.form');
 Route::post('/password/manual/reset', [ManualResetController::class, 'reset'])->name('password.manual.reset');
 
-Auth::routes();
+// Override login routes dengan UnifiedLoginController (sebelum Auth::routes)
+Route::get('/login', [UnifiedLoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [UnifiedLoginController::class, 'login']);
+Route::post('/logout', [UnifiedLoginController::class, 'logout'])->name('logout');
+
+// Auth::routes tanpa login (sudah di-override di atas)
+Auth::routes(['login' => false, 'logout' => false]);
+
 Route::middleware(['auth'])->group(function(){
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/table', [TableController::class, 'index'])->name('table');
-    Route::get('/home', [dashboardController::class, 'index'])->name('home');
-    Route::get('/update-data', [dashboardController::class, 'updateData']);
-    Route::get('/get-data-chart', [dashboardController::class, 'getDataChart']);
+    Route::get('/home', [DashboardController::class, 'index'])->name('home');
+    Route::get('/update-data', [DashboardController::class, 'updateData']);
+    Route::get('/get-data-chart', [DashboardController::class, 'getDataChart']);
+    Route::get('/get-dashboard-charts', [DashboardController::class, 'getChartData']);
 
  });
 
@@ -66,6 +78,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/bayar-tagihan/{kode}', [TagihanController::class, 'bayarTagihan'])->name('bayar-tagihan');
         Route::get('/cetak-struk/{id}', [TagihanController::class, 'cetakStruk'])->name('cetak-struk');
         Route::delete('/delete-tagihan/{id}', [TagihanController::class, 'deleteTagihan'])->name('delete-tagihan');
+        Route::post('/rollback-tagihan/{id}', [TagihanController::class, 'rollbackTagihan'])->name('rollback-tagihan');
     });
 
     Route::controller(PaketController::class)->prefix('paket')->group(function () {
@@ -109,10 +122,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/maps', [\App\Http\Controllers\MapController::class,'index'])->name('maps.index');
     Route::get('/maps/markers', [\App\Http\Controllers\MapController::class,'markers'])->name('maps.markers');
     Route::post('/maps/refresh-network-status', [\App\Http\Controllers\MapController::class,'refreshNetworkStatus'])->name('maps.refresh-network-status');
+    Route::get('/maps/rx-power/{id_pelanggan}', [\App\Http\Controllers\MapController::class,'getRxPower'])->name('maps.rx-power');
+    
+    // Admin Broadcast Notifications
+    Route::get('/broadcast', [\App\Http\Controllers\NotificationBroadcastController::class, 'create'])->name('broadcast.create');
+    Route::post('/broadcast', [\App\Http\Controllers\NotificationBroadcastController::class, 'send'])->name('broadcast.send');
 });
 
-Route::get('/pelanggan-login', [PelangganAuthController::class, 'showLoginForm'])->name('pelanggan.login');
-Route::post('/pelanggan-login', [PelangganAuthController::class, 'login']);
+// Redirect pelanggan-login ke unified login
+Route::get('/pelanggan-login', function () {
+    return redirect('/login');
+})->name('pelanggan.login');
+Route::post('/pelanggan-login', [UnifiedLoginController::class, 'login']);
 Route::middleware('auth:pelanggan')->group(function () {
     Route::get('/dashboard-pelanggan', [PelangganAuthController::class, 'dashboard'])->name('dashboard-pelanggan');
     Route::get('/belum-lunas', [PelangganAuthController::class, 'belumLunas'])->name('tagihan.belum_lunas');
@@ -127,50 +148,100 @@ Route::middleware('auth:pelanggan')->group(function () {
     Route::get('/tagihan/{id}/payment', [PelangganAuthController::class, 'showPaymentPage'])->name('payment');
     Route::post('/transaction', [TransactionController::class, 'store'])->name('transaction.store');
     Route::get('/transaction/{reference}', [TransactionController::class, 'show'])->name('transaction.show');
+    
+    // New Pelanggan Pages
+    Route::get('/pelanggan/tagihan', [PelangganAuthController::class, 'tagihan'])->name('pelanggan.tagihan');
+    Route::get('/pelanggan/pemakaian', [PelangganAuthController::class, 'pemakaian'])->name('pelanggan.pemakaian');
+    Route::get('/pelanggan/traffic-data', [PelangganAuthController::class, 'getTrafficData'])->name('pelanggan.traffic_data');
+    Route::get('/pelanggan/pengumuman', [PelangganAuthController::class, 'pengumuman'])->name('pelanggan.pengumuman');
+    Route::get('/pelanggan/bantuan', [PelangganAuthController::class, 'bantuan'])->name('pelanggan.bantuan');
+
+    // WiFi Settings (GenieACS)
+    Route::get('/wifi-settings', [WifiSettingController::class, 'index'])->name('wifi-settings.index');
+    Route::post('/wifi-settings', [WifiSettingController::class, 'update'])->name('wifi-settings.update');
+    
+    // Pelanggan Notifications
+    Route::get('/pelanggan/notifikasi', [\App\Http\Controllers\PelangganNotificationController::class, 'index'])->name('pelanggan.notifikasi');
+    Route::get('/pelanggan/notifikasi/count', [\App\Http\Controllers\PelangganNotificationController::class, 'getUnreadCount'])->name('pelanggan.notifikasi.count');
+    Route::get('/pelanggan/notifikasi/latest', [\App\Http\Controllers\PelangganNotificationController::class, 'getLatest'])->name('pelanggan.notifikasi.latest');
+    Route::post('/pelanggan/notifikasi/{id}/read', [\App\Http\Controllers\PelangganNotificationController::class, 'markAsRead'])->name('pelanggan.notifikasi.read');
+    Route::post('/pelanggan/notifikasi/read-all', [\App\Http\Controllers\PelangganNotificationController::class, 'markAllAsRead'])->name('pelanggan.notifikasi.read-all');
+    Route::delete('/pelanggan/notifikasi/delete-all', [\App\Http\Controllers\PelangganNotificationController::class, 'deleteAll'])->name('pelanggan.notifikasi.delete-all');
 });
 
 Route::middleware(['guest'])->group(function(){
 
-    Route::get('/login2', [dashboardController::class, 'login2'])->name('login2');
-    Route::get('/register2', [dashboardController::class, 'register2'])->name('register2');
+    Route::get('/login2', [DashboardController::class, 'login2'])->name('login2');
+    Route::get('/register2', [DashboardController::class, 'register2'])->name('register2');
  });
 
-Route::get('export-tagihan/{bulan}/{tahun}', function ($bulan, $tahun) {
-    $fileName = "tagihan_{$bulan}_{$tahun}.xlsx"; // Buat nama file dinamis
-    return Excel::download(new TagihanExport($bulan, $tahun), $fileName, \Maatwebsite\Excel\Excel::XLSX);
-})->name('export-tagihan');
-
-Route::get('/tripay/config', [TripayController::class, 'showConfigForm'])->name('tripay.config.form');
-Route::put('/tripay/config', [TripayController::class, 'updateConfig'])->name('tripay.config.update');
-
+// Logout pelanggan - tidak perlu auth admin karena ini untuk pelanggan
 Route::post('/logout-pelanggan', [PelangganAuthController::class, 'logout'])->name('pelanggan.logout');
-Route::post('/cetak-struk/{id}', [TagihanController::class, 'cetakStruk'])->name('cetak.struk');
-Route::get('/generate-pdf/{id}', [TagihanController::class, 'generatePdf'])->name('generate-pdf');
-Route::get('/pelanggan-lunas', [TagihanController::class, 'lunas'])->name('pelanggan.lunas');
-Route::get('/pelanggan-belum-lunas', [TagihanController::class, 'belumLunas'])->name('pelanggan.belumLunas');
-Route::get('/pelanggan/aktif', [PelangganController::class, 'aktif'])->name('pelanggan.aktif');
-Route::get('/pelanggan/nonaktif', [PelangganController::class, 'nonaktif'])->name('pelanggan.nonaktif');
-Route::get('/paket/view', [PaketController::class, 'viewPaket'])->name('paket.view');
-Route::resource('pengeluaran', PengeluaranController::class)->except(['show']);
 
-Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-Route::post('/laporan/export', [LaporanController::class, 'export']);
-Route::post('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');
+// ============================================================================
+// PROTECTED ROUTES - Semua route berikut membutuhkan autentikasi admin
+// ============================================================================
+Route::middleware('auth')->group(function () {
+    // Export Tagihan
+    Route::get('export-tagihan/{bulan}/{tahun}', function ($bulan, $tahun) {
+        $fileName = "tagihan_{$bulan}_{$tahun}.xlsx";
+        return Excel::download(new TagihanExport($bulan, $tahun), $fileName, \Maatwebsite\Excel\Excel::XLSX);
+    })->name('export-tagihan');
 
-Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
-Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    // Tripay Configuration
+    Route::get('/tripay/config', [TripayController::class, 'showConfigForm'])->name('tripay.config.form');
+    Route::put('/tripay/config', [TripayController::class, 'updateConfig'])->name('tripay.config.update');
 
-Route::get('/fonnte', [FonnteController::class, 'index'])->name('fonnte.index');
-Route::post('/fonnte/store-token', [FonnteController::class, 'storeToken'])->name('fonnte.storeToken');
-Route::delete('/fonnte/delete', [FonnteController::class, 'deleteToken'])->name('fonnte.deleteToken');
-Route::post('/fonnte/send-message', [FonnteController::class, 'sendMessage'])->name('fonnte.sendMessage');
+    // GenieACS Configuration
+    Route::get('/genieacs', [GenieAcsController::class, 'index'])->name('genieacs.index');
+    Route::put('/genieacs', [GenieAcsController::class, 'update'])->name('genieacs.update');
+    Route::post('/genieacs/test', [GenieAcsController::class, 'testConnection'])->name('genieacs.test');
 
-Route::get('/fonnte/notification', [FonnteNotificationController::class, 'index'])->name('fonnte.notification.index');
-Route::post('/fonnte/notification/save-settings', [FonnteNotificationController::class, 'saveSettings'])->name('fonnte.notification.saveSettings');
-Route::post('/fonnte/notification/send', [FonnteNotificationController::class, 'sendNotifications'])->name('fonnte.notification.send');
+    // Admin WiFi Management
+    Route::get('/pelanggan/{id}/wifi-info', [WifiSettingController::class, 'getWifiInfoForAdmin'])->name('admin.wifi.info');
+    Route::post('/pelanggan/{id}/wifi-update', [WifiSettingController::class, 'adminUpdate'])->name('admin.wifi.update');
+    Route::get('/pelanggan/{id}/rx-power', [WifiSettingController::class, 'getRxPower'])->name('admin.rx.power');
 
-Route::get('/pelanggan/export', [PelangganController::class, 'export'])->name('pelanggan.export');
-Route::post('/pelanggan/import', [PelangganController::class, 'import'])->name('pelanggan.import');
+    // Notification Settings
+    Route::get('/notification-settings', [NotificationSettingController::class, 'index'])->name('notification-settings.index');
+    Route::put('/notification-settings', [NotificationSettingController::class, 'update'])->name('notification-settings.update');
+
+    // Cetak Struk & PDF
+    Route::post('/cetak-struk/{id}', [TagihanController::class, 'cetakStruk'])->name('cetak.struk');
+    Route::get('/generate-pdf/{id}', [TagihanController::class, 'generatePdf'])->name('generate-pdf');
+
+    // Pelanggan Status Views (admin only)
+    Route::get('/pelanggan-lunas', [TagihanController::class, 'lunas'])->name('pelanggan.lunas');
+    Route::get('/pelanggan-belum-lunas', [TagihanController::class, 'belumLunas'])->name('pelanggan.belumLunas');
+
+    // Paket View
+    Route::get('/paket/view', [PaketController::class, 'viewPaket'])->name('paket.view');
+
+    // Laporan
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::post('/laporan/export', [LaporanController::class, 'export']);
+    Route::post('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');
+
+    // Settings
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    // Fonnte WhatsApp Integration
+    Route::get('/fonnte', [FonnteController::class, 'index'])->name('fonnte.index');
+    Route::post('/fonnte/store-token', [FonnteController::class, 'storeToken'])->name('fonnte.storeToken');
+    Route::delete('/fonnte/delete', [FonnteController::class, 'deleteToken'])->name('fonnte.deleteToken');
+    Route::post('/fonnte/send-message', [FonnteController::class, 'sendMessage'])->name('fonnte.sendMessage');
+
+    // Fonnte Notification
+    Route::get('/fonnte/notification', [FonnteNotificationController::class, 'index'])->name('fonnte.notification.index');
+    Route::post('/fonnte/notification/save-settings', [FonnteNotificationController::class, 'saveSettings'])->name('fonnte.notification.saveSettings');
+    Route::post('/fonnte/notification/send', [FonnteNotificationController::class, 'sendNotifications'])->name('fonnte.notification.send');
+    Route::post('/fonnte/notification/save-payment-settings', [FonnteNotificationController::class, 'savePaymentSettings'])->name('fonnte.notification.savePaymentSettings');
+
+    // Pelanggan Import/Export
+    Route::get('/pelanggan/export', [PelangganController::class, 'export'])->name('pelanggan.export');
+    Route::post('/pelanggan/import', [PelangganController::class, 'import'])->name('pelanggan.import');
+});
 
 // MikroTik Routes
 Route::middleware('auth')->prefix('mikrotik')->group(function () {

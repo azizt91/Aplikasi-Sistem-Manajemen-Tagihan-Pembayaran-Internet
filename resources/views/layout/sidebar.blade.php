@@ -2,9 +2,9 @@
     <div class="app-brand demo">
         <a href="{{ Auth::guard('pelanggan')->check() ? route('dashboard-pelanggan') : route('home') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
-                <img src="{{ asset(Storage::url(settings('sidebar_logo'))) }}" alt="Logo" style="width: 30px; height: 30px;">
+                <img src="{{ asset(Storage::url(settings('app_logo') ?? settings('sidebar_logo'))) }}" alt="Logo" style="width: 30px; height: 30px;">
             </span>
-            <span class="app-brand-text demo menu-text fw-bolder ms-2" style="font-size: 20px;">{{ settings('sidebar_text') }}</span>
+            <span class="app-brand-text demo menu-text fw-bolder ms-2" style="font-size: 20px;">{{ settings('app_name') ?? settings('sidebar_text') }}</span>
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
@@ -105,17 +105,24 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->is('broadcast') ? 'active' : '' }}">
+            <a href="{{ route('broadcast.create') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-broadcast"></i>
+                <div class="text-truncate" data-i18n="Broadcast">Broadcast Notifikasi</div>
+            </a>
+        </li>
+
         <!-- Unified Settings Menu -->
          <li class="menu-item {{ request()->routeIs('fonnte.*','settings*','tripay*','banks*','mikrotik*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div data-i18n="WhatsApp Gateway">Setting</div>
+                <div data-i18n="WhatsApp Gateway">Pengaturan</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item {{ request()->routeIs('fonnte.index') ? 'active' : '' }}">
                     <a href="{{ route('fonnte.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-key"></i>
-                        <div data-i18n="Pengaturan Token">Pengaturan Token</div>
+                        <div data-i18n="WA Gateway">WA Gateway</div>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('fonnte.notification.index') ? 'active' : '' }}">
@@ -127,7 +134,7 @@
                 <li class="menu-item {{ request()->routeIs('settings.edit') ? 'active' : '' }}">
                     <a href="{{ route('settings.edit') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-cog"></i>
-                        <div data-i18n="Settings">Nama & Icon App</div>
+                        <div data-i18n="Settings">Pengaturan Umum</div>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('tripay.config.form') ? 'active' : '' }}">
@@ -148,13 +155,19 @@
                         <div data-i18n="MikroTik">Koneksi</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->routeIs('genieacs.index') ? 'active' : '' }}">
+                    <a href="{{ route('genieacs.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-server"></i>
+                        <div data-i18n="GenieACS">GenieACS</div>
+                    </a>
+                </li>
             </ul>
         </li>
 
         {{-- <li class="menu-item {{ request()->is('settings*') ? 'active' : '' }}">
             <a href="{{ route('settings.edit') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div class="text-truncate" data-i18n="Settings">Nama & Icon App</div>
+                <div class="text-truncate" data-i18n="Settings">Pengaturan Umum</div>
             </a>
         </li> --}}
 
@@ -184,26 +197,77 @@
 
         <!-- Sidebar untuk Pelanggan -->
         @if(Auth::guard('pelanggan')->check())
+        
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Menu Utama</span>
+        </li>
+        
         <li class="menu-item {{ request()->is('dashboard-pelanggan') ? 'active' : '' }}">
             <a href="{{ route('dashboard-pelanggan') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home"></i>
-                <div class="text-truncate" data-i18n="Boxicons">Dasbor</div>
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div class="text-truncate" data-i18n="Dasbor">Dasbor</div>
             </a>
         </li>
 
-        <li class="menu-item {{ request()->is('profile') ? 'active' : '' }}">
-            <a href="{{ route('profile') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-user-circle"></i>
-                <div class="text-truncate" data-i18n="Boxicons">Profile</div>
+        <li class="menu-item {{ request()->is('pelanggan/tagihan*') || request()->is('belum-lunas') || request()->is('sudah-lunas') ? 'active' : '' }}">
+            <a href="{{ route('pelanggan.tagihan') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-credit-card"></i>
+                <div class="text-truncate" data-i18n="Tagihan">Tagihan</div>
             </a>
         </li>
 
-        {{-- <li class="menu-item {{ request()->is('riwayat-pembayaran','tagihan/invoice-pembayaran/id') ? 'active' : '' }}">
+        <li class="menu-item {{ request()->is('riwayat-pembayaran*') ? 'active' : '' }}">
             <a href="{{ route('tagihan.riwayat_pembayaran') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-history"></i>
-                <div class="text-truncate" data-i18n="Boxicons">Riwayat</div>
+                <div class="text-truncate" data-i18n="Riwayat">Riwayat Pembayaran</div>
             </a>
-        </li> --}}
+        </li>
+
+        <li class="menu-item {{ request()->is('pelanggan/notifikasi*') ? 'active' : '' }}">
+            <a href="{{ route('pelanggan.notifikasi') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-bell"></i>
+                <div class="text-truncate" data-i18n="Notifikasi">Notifikasi</div>
+            </a>
+        </li>
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Informasi</span>
+        </li>
+
+        <li class="menu-item {{ request()->is('pelanggan/pemakaian*') ? 'active' : '' }}">
+            <a href="{{ route('pelanggan.pemakaian') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+                <div class="text-truncate" data-i18n="Pemakaian">Pemakaian</div>
+            </a>
+        </li>
+
+        @if(\App\Models\GenieAcsSetting::isEnabled())
+        <li class="menu-item {{ request()->routeIs('wifi-settings.index') ? 'active' : '' }}">
+            <a href="{{ route('wifi-settings.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-wifi"></i>
+                <div class="text-truncate" data-i18n="WiFi">Pengaturan WiFi</div>
+            </a>
+        </li>
+        @endif
+
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Lainnya</span>
+        </li>
+
+        <li class="menu-item {{ request()->is('pelanggan/bantuan*') ? 'active' : '' }}">
+            <a href="{{ route('pelanggan.bantuan') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-help-circle"></i>
+                <div class="text-truncate" data-i18n="Bantuan">Bantuan</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->is('profile*') ? 'active' : '' }}">
+            <a href="{{ route('profile') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div class="text-truncate" data-i18n="Profile">Profile</div>
+            </a>
+        </li>
+
         @endif
     </ul>
 </aside>

@@ -41,6 +41,21 @@
             align-items: center;
             transition: all 0.2s;
         }
+        
+        /* Mobile sidebar scroll fix */
+        @media (max-width: 1199px) {
+            .layout-menu {
+                height: 100vh !important;
+                max-height: 100vh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .layout-menu .menu-inner {
+                overflow-y: auto !important;
+                max-height: calc(100vh - 80px);
+                padding-bottom: 80px;
+            }
+        }
     </style>
 
     <style>

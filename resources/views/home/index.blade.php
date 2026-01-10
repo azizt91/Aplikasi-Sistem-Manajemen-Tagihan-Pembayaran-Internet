@@ -1,4 +1,4 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('content')
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -316,26 +316,54 @@
 
 
 
+    <!-- Chart: Status Pembayaran (Donut) -->
     <div class="col-lg-5 mb-4 order-2 order-md-3 order-lg-2 mb-4">
-      <div class="card">
-        <div class="row row-bordered g-0">
-          <div class="col-lg-12 ">
-            <h5 class="card-header m-0 me-2 pb-3">Kalender</h5>
-            <div class="card-body ">
-              <div class="today ">
-                <div class="fs-5 mb-5 text-center bg-primary text-white today-piece  top  day"></div>
-                {{-- <div class="fs-3  text-center today-piece  middle  date"></div> --}}
-                <div id="dateElement" class="fs-3 text-center today-piece middle date"></div>
-                <div class="fs-3 mb-5 text-center today-piece  middle  month"></div>
-                <div class="fs-5 bg-primary text-white text-center today-piece  bottom  year"></div>
-            </div>
-          </div>
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="m-0 me-2">Status Pembayaran</h5>
+          <span class="badge bg-primary">Bulan ini</span>
+        </div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <div id="statusPembayaranChart" style="min-height: 250px;"></div>
         </div>
       </div>
     </div>
-    <!--/ Total Revenue -->
+    <!--/ Status Pembayaran -->
+  </div>
+  <!-- End Row 1 -->
 
-</div></div>
+  <!-- Row 2: Pertumbuhan Pelanggan & Total Aktif -->
+  <div class="row">
+    <!-- Chart: Pertumbuhan Pelanggan (Bar) -->
+    <div class="col-lg-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="m-0">Pertumbuhan Pelanggan</h5>
+          <span class="badge bg-info">Baru vs Cabut</span>
+        </div>
+        <div class="card-body">
+          <div id="pertumbuhanPelangganChart" style="min-height: 280px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart: Total Pelanggan Aktif (Line) -->
+    <div class="col-lg-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="m-0">Total Pelanggan Aktif</h5>
+          <span class="badge bg-primary">Kumulatif 6 bulan</span>
+        </div>
+        <div class="card-body">
+          <div id="totalPelangganAktifChart" style="min-height: 280px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Row 2 -->
+
+</div>
+<!-- End container-xxl -->
 
 @endsection
 
@@ -744,9 +772,325 @@
     });
 </script>
 
+<!-- Dashboard Charts: Status Pembayaran, Pertumbuhan Pelanggan, Total Aktif -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let bulan = document.getElementById('bulan').value;
+    let tahun = document.getElementById('tahun').value;
 
+    // Fetch chart data
+    fetchChartData(bulan, tahun);
 
+    // Update charts when filters change
+    document.getElementById('bulan').addEventListener('change', function() {
+        fetchChartData(this.value, document.getElementById('tahun').value);
+    });
+    document.getElementById('tahun').addEventListener('change', function() {
+        fetchChartData(document.getElementById('bulan').value, this.value);
+    });
 
+    function fetchChartData(bulan, tahun) {
+        fetch(`/get-dashboard-charts?bulan=${bulan}&tahun=${tahun}`)
+            .then(response => response.json())
+            .then(data => {
+                renderStatusPembayaran(data.statusPembayaran);
+                renderPertumbuhanPelanggan(data.pertumbuhanPelanggan);
+                renderTotalAktif(data.totalAktif);
+            })
+            .catch(error => console.error('Error fetching chart data:', error));
+    }
+
+    // 1. Status Pembayaran - Donut Chart
+    // let statusChart = null;
+    // function renderStatusPembayaran(data) {
+    //     const total = data.lunas + data.belumBayar;
+    //     const lunasPercent = total > 0 ? ((data.lunas / total) * 100).toFixed(0) : 0;
+    //     const belumPercent = total > 0 ? ((data.belumBayar / total) * 100).toFixed(0) : 0;
+
+    //     const options = {
+    //         chart: {
+    //             type: 'donut',
+    //             height: 280
+    //         },
+    //         series: [data.lunas, data.belumBayar],
+    //         labels: ['Lunas', 'Belum Bayar'],
+    //         colors: ['#28a745', '#dc3545'],
+    //         plotOptions: {
+    //             pie: {
+    //                 donut: {
+    //                     size: '65%',
+    //                     labels: {
+    //                         show: true,
+    //                         name: { show: true },
+    //                         value: {
+    //                             show: true,
+    //                             formatter: function(val) {
+    //                                 return val + ' tagihan';
+    //                             }
+    //                         },
+    //                         total: {
+    //                             show: true,
+    //                             label: 'Total',
+    //                             formatter: function(w) {
+    //                                 return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + ' tagihan';
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         legend: {
+    //             position: 'right',
+    //             offsetY: 0,
+    //             formatter: function(seriesName, opts) {
+    //                 const count = opts.w.globals.series[opts.seriesIndex];
+    //                 return seriesName + ': ' + count + ' tagihan';
+    //             }
+    //         },
+    //         dataLabels: {
+    //             enabled: true,
+    //             formatter: function(val) {
+    //                 return val.toFixed(0) + '%';
+    //             }
+    //         },
+    //         responsive: [{
+    //             breakpoint: 768,
+    //             options: {
+    //                 legend: { position: 'bottom' }
+    //             }
+    //         }]
+    //     };
+
+    //     if (statusChart) {
+    //         statusChart.updateOptions(options);
+    //         statusChart.updateSeries([data.lunas, data.belumBayar]);
+    //     } else {
+    //         statusChart = new ApexCharts(document.querySelector("#statusPembayaranChart"), options);
+    //         statusChart.render();
+    //     }
+    // }
+    // 1. Status Pembayaran - Donut Chart (YANG SUDAH DIPERBAIKI)
+    let statusChart = null;
+    function renderStatusPembayaran(data) {
+        const total = data.lunas + data.belumBayar;
+        
+        const options = {
+            chart: {
+                type: 'donut',
+                height: 320, // Tinggi sedikit ditambah agar proporsional
+                fontFamily: 'Public Sans, sans-serif'
+            },
+            series: [data.lunas, data.belumBayar],
+            labels: ['Lunas', 'Belum Bayar'],
+            // Warna tema Sneat (Success Green & Danger Red)
+            colors: ['#71dd37', '#ff3e1d'], 
+            stroke: {
+                width: 5,
+                colors: ['#fff'] // Memberi jarak putih antar irisan
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '75%', // Donut lebih tipis agar terlihat elegan
+                        labels: {
+                            show: true,
+                            name: {
+                                show: true,
+                                fontSize: '0.9rem',
+                                fontFamily: 'Public Sans, sans-serif',
+                                offsetY: 20 // Geser nama ke bawah angka
+                            },
+                            value: {
+                                show: true,
+                                fontSize: '2rem', // Angka dibuat besar
+                                fontFamily: 'Public Sans, sans-serif',
+                                fontWeight: '600',
+                                color: '#566a7f',
+                                offsetY: -20, // Geser angka ke atas
+                                formatter: function(val) {
+                                    return val;
+                                }
+                            },
+                            total: {
+                                show: true,
+                                showAlways: true,
+                                label: 'Total Tagihan',
+                                fontSize: '0.9rem',
+                                color: '#a1acb8',
+                                formatter: function(w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            legend: {
+                position: 'bottom', // Pindah ke bawah
+                horizontalAlign: 'center', 
+                offsetY: 0,
+                markers: {
+                    width: 10,
+                    height: 10,
+                    radius: 12 // Bulat penuh
+                },
+                itemMargin: {
+                    horizontal: 10,
+                    vertical: 5
+                }
+            },
+            dataLabels: {
+                enabled: false // Matikan label % yang menumpuk di dalam chart
+            },
+            grid: {
+                padding: {
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    left: 0
+                }
+            },
+            states: {
+                hover: {
+                    filter: {
+                        type: 'none'
+                    }
+                },
+                active: {
+                    filter: {
+                        type: 'none'
+                    }
+                }
+            }
+        };
+
+        if (statusChart) {
+            statusChart.updateOptions(options);
+            statusChart.updateSeries([data.lunas, data.belumBayar]);
+        } else {
+            statusChart = new ApexCharts(document.querySelector("#statusPembayaranChart"), options);
+            statusChart.render();
+        }
+    }
+
+    // 2. Pertumbuhan Pelanggan - Bar Chart
+    let pertumbuhanChart = null;
+    function renderPertumbuhanPelanggan(data) {
+        const options = {
+            chart: {
+                type: 'bar',
+                height: 280,
+                toolbar: { show: false }
+            },
+            series: [
+                { name: 'Pelanggan Baru', data: data.baru },
+                { name: 'Pelanggan Cabut', data: data.cabut }
+            ],
+            colors: ['#28a745', '#dc3545'],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    borderRadius: 4
+                }
+            },
+            dataLabels: { enabled: false },
+            xaxis: {
+                categories: data.labels,
+                labels: { rotate: -45 }
+            },
+            yaxis: {
+                title: { text: 'Jumlah' },
+                labels: {
+                    formatter: function(val) {
+                        return Math.floor(val);
+                    }
+                }
+            },
+            legend: { position: 'top' },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + ' pelanggan';
+                    }
+                }
+            }
+        };
+
+        if (pertumbuhanChart) {
+            pertumbuhanChart.updateOptions(options);
+            pertumbuhanChart.updateSeries(options.series);
+        } else {
+            pertumbuhanChart = new ApexCharts(document.querySelector("#pertumbuhanPelangganChart"), options);
+            pertumbuhanChart.render();
+        }
+    }
+
+    // 3. Total Pelanggan Aktif - Line Chart
+    let totalAktifChart = null;
+    function renderTotalAktif(data) {
+        const options = {
+            chart: {
+                type: 'area',
+                height: 280,
+                toolbar: { show: false }
+            },
+            series: [{
+                name: 'Pelanggan Aktif',
+                data: data.data
+            }],
+            colors: ['#696cff'],
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.1,
+                    stops: [0, 90, 100]
+                }
+            },
+            markers: {
+                size: 5,
+                colors: ['#696cff'],
+                strokeColors: '#fff',
+                strokeWidth: 2,
+                hover: { size: 7 }
+            },
+            xaxis: {
+                categories: data.labels,
+                labels: { rotate: -45 }
+            },
+            yaxis: {
+                title: { text: 'Jumlah Pelanggan' },
+                labels: {
+                    formatter: function(val) {
+                        return Math.floor(val);
+                    }
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + ' pelanggan';
+                    }
+                }
+            }
+        };
+
+        if (totalAktifChart) {
+            totalAktifChart.updateOptions(options);
+            totalAktifChart.updateSeries(options.series);
+        } else {
+            totalAktifChart = new ApexCharts(document.querySelector("#totalPelangganAktifChart"), options);
+            totalAktifChart.render();
+        }
+    }
+});
+</script>
 
 
 

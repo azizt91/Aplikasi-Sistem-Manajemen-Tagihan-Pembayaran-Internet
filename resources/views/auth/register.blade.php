@@ -84,9 +84,9 @@
               <div class="app-brand mb-5">
                 <a href="index.html" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
-      <img src="{{ asset(Storage::url(settings('logo_admin'))) }}" alt="Logo" style="width: 30px; height: 30px;">
+      <img src="{{ asset(Storage::url(settings('app_logo') ?? settings('logo_admin'))) }}" alt="Logo" style="width: 30px; height: 30px;">
       </span>
-                  <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name_admin') }}</span>
+                  <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name') ?? settings('app_name_admin') }}</span>
                 </a>
               </div>
               <!-- /Logo -->

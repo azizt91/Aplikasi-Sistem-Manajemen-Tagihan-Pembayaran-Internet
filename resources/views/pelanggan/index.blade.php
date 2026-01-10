@@ -1,4 +1,4 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title')
 @section('content')
 
@@ -41,14 +41,16 @@
                             <th>No</th>
                             <th>ID</th>
                             <th>Nama</th>
+                            @if(\App\Models\GenieAcsSetting::isEnabled())
+                            <th>RX Power</th>
+                            @endif
                             <th>Alamat</th>
                             <th>WhatsApp</th>
                             <th>E-Mail</th>
                             <th>Password</th>
                             <th>Paket</th>
                             <th>Status</th>
-                            <th>Jatuh Tempo</th>
-                            <th>Tgl Pasang </th>
+                            <th>Tgl Pasang</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -58,6 +60,17 @@
                             <td><small>{{ $no++ }}</small></td>
                             <td><small>{{ $row->id_pelanggan }}</small></td>
                             <td><small>{{ $row->nama }}</small></td>
+                            @if(\App\Models\GenieAcsSetting::isEnabled())
+                            <td>
+                                @if($row->ip_address)
+                                <span class="rx-power-cell" data-ip="{{ $row->ip_address }}" data-id="{{ $row->id_pelanggan }}">
+                                    <i class="bx bx-loader-alt bx-spin text-muted"></i>
+                                </span>
+                                @else
+                                <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            @endif
                             <td><small>{{ $row->alamat }}</small></td>
                             <td><small>{{ $row->whatsapp }}</small></td>
                             <td><small>{{ $row->email }}</small></td>
@@ -70,7 +83,6 @@
                                     <span class="badge rounded-pill bg-danger">nonaktif</span>
                                 @endif
                             </td>
-                            <td><small>{{ $row->jatuh_tempo }}</small></td>
                             <td><small>{{ \Carbon\Carbon::parse($row->tanggal_pasang)->format('d M Y') }}</small></td>
                             <td>
                                 <div class="dropdown">
@@ -116,11 +128,14 @@
                                 ⚠️ <strong>Pastikan format data sesuai sebelum mengimport!</strong>
                                 <ul>
                                     <li><code>id_pelanggan</code> dibuat otomatis, kosongkan saja.</li>
-                                    <li>Gunakan format tanggal strong>YYYY-MM-DD</strong> (bukan DD/MM/YYYY) pada kolom tanggal_pasang</li>
+                                    <li>Gunakan format tanggal <strong>YYYY-MM-DD</strong> (bukan DD/MM/YYYY) pada kolom tanggal_pasang</li>
                                     <li>Nomor WhatsApp harus diawali dengan <strong>62</strong>, tanpa spasi.</li>
-                                    <li>Kolom paket harus diisi dengan <code>id_paket</code> yang telah Anda buat sebelumnya. Sebagai contoh, di sini saya menggunakan <strong>P001</strong>.</li>
-                                    <li>Hindari kolom kosong dalam file Excel untuk menghindari error.</li>
-                                    <li>Untuk lebih mudah, bisa <a href="{{ asset('template/pelanggan.xlsx') }}" target="_blank">download template Excel</a>.</li>
+                                    <li>Kolom paket harus diisi dengan <code>id_paket</code> yang telah Anda buat. Contoh: <strong>P001</strong>.</li>
+                                    <li>Kolom: nama, alamat, whatsapp, email, password, status, tanggal_pasang, paket</li>
+                                    <li>Download template: 
+                                        <a href="{{ asset('template/pelanggan_template.csv') }}" target="_blank">CSV</a> |
+                                        <a href="{{ asset('template/pelanggan.xlsx') }}" target="_blank">Excel</a>
+                                    </li>
                                 </ul>
                             </p>
                         </div>
@@ -162,6 +177,46 @@
             }
         })
     }
+
+    @if(\App\Models\GenieAcsSetting::isEnabled())
+    // Fetch RX Power for all pelanggan
+    document.addEventListener('DOMContentLoaded', function() {
+        const rxCells = document.querySelectorAll('.rx-power-cell');
+        
+        rxCells.forEach(function(cell) {
+            const pelangganId = cell.dataset.id;
+            
+            fetch('/pelanggan/' + pelangganId + '/rx-power')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.rx_power !== null && data.rx_power !== 'N/A') {
+                        const rxValue = parseFloat(data.rx_power);
+                        let color = '#6c757d'; // gray default
+                        let badgeClass = 'bg-secondary';
+                        
+                        if (rxValue > -20) {
+                            color = '#1fde5a'; // green - good
+                            badgeClass = 'bg-success';
+                        } else if (rxValue >= -25) {
+                            color = '#f28f00'; // orange - ok
+                            badgeClass = 'bg-warning';
+                        } else {
+                            color = '#ff5252'; // red - bad
+                            badgeClass = 'bg-danger';
+                        }
+                        
+                        cell.innerHTML = '<span class="badge ' + badgeClass + '" style="font-size: 0.75rem;">' + 
+                            rxValue.toFixed(2) + ' dBm</span>';
+                    } else {
+                        cell.innerHTML = '<span class="text-muted">N/A</span>';
+                    }
+                })
+                .catch(error => {
+                    cell.innerHTML = '<span class="text-muted">-</span>';
+                });
+        });
+    });
+    @endif
 </script>
 
 

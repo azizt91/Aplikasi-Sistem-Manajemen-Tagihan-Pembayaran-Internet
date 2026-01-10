@@ -2,147 +2,136 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTagihanRequest;
 use App\Models\Bulan;
 use App\Models\Pelanggan;
 use App\Models\Tagihan;
-use App\Models\Paket;
+use App\Services\TagihanService;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
-use PDF;
 
-
+/**
+ * Controller untuk menangani operasi tagihan.
+ * 
+ * Menggunakan TagihanService untuk business logic dan
+ * Form Request untuk validasi.
+ */
 class TagihanController extends Controller
 {
+    protected TagihanService $tagihanService;
+
+    public function __construct(TagihanService $tagihanService)
+    {
+        $this->tagihanService = $tagihanService;
+    }
+
+    /**
+     * Tampilkan halaman index tagihan.
+     */
     public function index()
     {
         $bulanList = Bulan::all();
-        $pelangganList = Pelanggan::where('status', 'aktif')->get();
+        $jumlahPelangganAktif = Pelanggan::where('status', 'aktif')->count();
 
-        return view('tagihan.index', compact('bulanList', 'pelangganList'));
+        return view('tagihan.index', compact('bulanList', 'jumlahPelangganAktif'));
     }
 
-
+    /**
+     * Simpan tagihan baru.
+     * 
+     * Menggunakan StoreTagihanRequest untuk validasi dan
+     * TagihanService untuk business logic.
+     * Otomatis membuat tagihan untuk semua pelanggan aktif.
+     */
     public function storeTagihan(Request $request)
     {
-        // Validasi input dengan aturan yang lebih ketat
+        // Validasi hanya bulan dan tahun
         $request->validate([
-            'bulan' => 'required|integer|min:1|max:12', // Pastikan bulan valid
-            'tahun' => 'required|integer|min:2000', // Tahun minimum
-            'id_pelanggan' => 'required|array|min:1', // Pastikan ada minimal 1 pelanggan
-            'id_pelanggan.*' => 'exists:pelanggan,id_pelanggan', // Setiap ID pelanggan harus ada di tabel pelanggan
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000|max:2100',
+        ], [
+            'bulan.required' => 'Bulan harus dipilih',
+            'tahun.required' => 'Tahun harus dipilih',
         ]);
-
-        $bulan = $request->bulan;
-        $tahun = $request->tahun;
-        $idPelangganBaru = []; // Array untuk menyimpan id_pelanggan baru
 
         try {
-            // Logging input yang diterima
-            Log::info('Data yang diterima untuk penyimpanan tagihan:', [
-                'bulan' => $bulan,
-                'tahun' => $tahun,
-                'id_pelanggan' => $request->id_pelanggan
-            ]);
-
-            // Iterasi setiap pelanggan dari array
-            foreach ($request->id_pelanggan as $id_pelanggan) {
-                // Cek apakah tagihan untuk pelanggan ini sudah ada di bulan dan tahun yang sama
-                $existingTagihan = Tagihan::where('bulan', $bulan)
-                    ->where('tahun', $tahun)
-                    ->where('id_pelanggan', $id_pelanggan)
-                    ->first();
-
-                if ($existingTagihan) {
-                    Log::warning('Tagihan sudah ada untuk pelanggan ini. Melewati.', ['id_pelanggan' => $id_pelanggan]);
-                    continue; // Skip jika tagihan sudah ada
-                }
-
-                // Tambahkan id_pelanggan baru ke array
-                $idPelangganBaru[] = $id_pelanggan;
+            // Ambil semua ID pelanggan aktif
+            $pelangganIds = Pelanggan::where('status', 'aktif')->pluck('id_pelanggan')->toArray();
+            
+            if (empty($pelangganIds)) {
+                Alert::warning('Peringatan', 'Tidak ada pelanggan aktif');
+                return redirect()->route('tagihan');
             }
 
-            // Proses hanya pelanggan baru
-            foreach ($idPelangganBaru as $id_pelanggan) {
-                // Ambil pelanggan dengan relasi paket dan log jika pelanggan ditemukan
-                $pelanggan = Pelanggan::with('paket')->findOrFail($id_pelanggan);
-                Log::info('Pelanggan ditemukan:', ['id_pelanggan' => $id_pelanggan]);
+            $result = $this->tagihanService->generateBillsForCustomers(
+                $request->bulan,
+                $request->tahun,
+                $pelangganIds
+            );
 
-                // Cek apakah pelanggan statusnya aktif
-                if ($pelanggan->status == 'aktif') {
-                    Log::info('Pelanggan aktif, ID:', ['id_pelanggan' => $id_pelanggan]);
-
-                    // Pastikan relasi paket ada, jika tidak, log error dan lanjutkan ke pelanggan berikutnya
-                    if ($pelanggan->paket) {
-                        $tarifPelanggan = $pelanggan->paket->tarif;
-                        Log::info('Tarif paket pelanggan:', ['id_pelanggan' => $id_pelanggan, 'tarif' => $tarifPelanggan]);
-
-                        // Buat objek Tagihan baru
-                        $tagihan = new Tagihan([
-                            'bulan' => $bulan,
-                            'tahun' => $tahun,
-                            'id_pelanggan' => $id_pelanggan,
-                            'tagihan' => $tarifPelanggan,
-                            'status' => 'BL', // Status 'BL' untuk tagihan baru
-                        ]);
-
-                        // Simpan tagihan ke database
-                        $tagihan->save();
-                        Log::info('Tagihan berhasil disimpan untuk pelanggan:', ['id_pelanggan' => $id_pelanggan]);
-
-                    } else {
-                        Log::warning('Pelanggan tidak memiliki paket, melewati.', ['id_pelanggan' => $id_pelanggan]);
-                        continue; // Skip pelanggan yang tidak memiliki paket
-                    }
-                } else {
-                    Log::warning('Pelanggan tidak aktif, melewati.', ['id_pelanggan' => $id_pelanggan]);
-                }
+            if ($result['created'] > 0) {
+                Alert::success('Sukses', "Berhasil membuat {$result['created']} tagihan");
+            } elseif ($result['skipped'] > 0) {
+                Alert::info('Info', 'Semua tagihan sudah ada sebelumnya');
+            } else {
+                Alert::warning('Peringatan', 'Tidak ada tagihan yang dibuat');
             }
 
-            // Jika semua tagihan berhasil disimpan, tampilkan alert sukses
-            Alert::success('Sukses', 'Tagihan berhasil disimpan');
+            if (!empty($result['errors'])) {
+                Log::warning('Beberapa tagihan gagal dibuat', ['errors' => $result['errors']]);
+            }
         } catch (\Exception $e) {
-            // Tangkap error dan tampilkan alert error
-            Alert::error('Error', 'Tagihan gagal disimpan. Pesan: ' . $e->getMessage());
+            Log::error('Error saat menyimpan tagihan', ['error' => $e->getMessage()]);
+            Alert::error('Error', 'Tagihan gagal disimpan: ' . $e->getMessage());
         }
 
-        // Redirect kembali ke halaman 'buka-tagihan'
-        return redirect()->route('buka-tagihan');
+        return redirect()->route('buka-tagihan', ['bulan' => $request->bulan, 'tahun' => $request->tahun]);
     }
 
-    public function bukaTagihan()
+    /**
+     * Tampilkan halaman buka tagihan dengan data langsung.
+     */
+    public function bukaTagihan(Request $request)
     {
-        // Fetch the list of months and years
         $bulanList = Bulan::all();
-        $tahunList = range(date('Y'), date('Y') + 5);
+        // $tahunList = range(2021, date('Y') + 5);
+        $currentYear = date('Y');
 
-        $pelangganList = Pelanggan::where('status', 'aktif')->get();
+        $tahunList = range(
+            $currentYear - 2,
+            $currentYear + 2
+        );
 
-        return view('tagihan.buka-tagihan', compact('bulanList', 'tahunList'));
+        // Default ke bulan dan tahun saat ini
+        $bulan = $request->input('bulan', date('n'));
+        $tahun = $request->input('tahun', date('Y'));
 
-    }
-
-    public function dataTagihan(Request $request)
-    {
-        $request->validate([
-            'bulan' => 'required',
-            'tahun' => 'required',
-        ]);
-
-        $bulan = $request->input('bulan');
-        $tahun = $request->input('tahun');
-
-        // Assuming you have a method to fetch data based on the month, year, and status
+        // Ambil data tagihan (hanya yang belum lunas)
         $tagihanList = Tagihan::getDataByMonthYearAndStatus($bulan, $tahun, 'BL');
 
-        return view('tagihan.data-tagihan', compact('tagihanList', 'bulan', 'tahun'));
-
+        return view('tagihan.buka-tagihan', compact('bulanList', 'tahunList', 'tagihanList', 'bulan', 'tahun'));
     }
 
+    /**
+     * Tampilkan data tagihan berdasarkan bulan dan tahun (redirect ke bukaTagihan).
+     */
+    public function dataTagihan(Request $request)
+    {
+        $bulan = $request->input('bulan', date('n'));
+        $tahun = $request->input('tahun', date('Y'));
+
+        return redirect()->route('buka-tagihan', ['bulan' => $bulan, 'tahun' => $tahun]);
+    }
+
+    /**
+     * Proses pembayaran tagihan.
+     * 
+     * Menggunakan TagihanService untuk business logic pembayaran.
+     */
     public function bayarTagihan(Request $request, $kode)
     {
         $tagihan = Tagihan::find($kode);
@@ -152,216 +141,170 @@ class TagihanController extends Controller
             return redirect()->route('buka-tagihan');
         }
 
-        // Cek apakah ini pembayaran langsung lunas (jika tombol "Lunas" ditekan)
-        if (!$request->has('jumlah_bayar')) {
-            // Langsung tandai sebagai lunas tanpa cek jumlah bayar
-            $tagihan->status = 'LS';
-            $tagihan->tgl_bayar = now();
-            $tagihan->jumlah_dibayar = $tagihan->tagihan; // Set nilai ke total tagihan
-            $tagihan->save();
+        // Gunakan service untuk proses pembayaran
+        $jumlahBayar = $request->has('jumlah_bayar') ? (float) $request->input('jumlah_bayar') : null;
+        $pembayaranVia = $request->input('pembayaran_via');
+        $result = $this->tagihanService->processPayment($tagihan, $jumlahBayar, $pembayaranVia);
 
-            Alert::success('Sukses', 'Tagihan telah lunas');
-            return redirect()->route('lunas-tagihan');
-        }
-
-        // Jika ada jumlah cicilan, jalankan validasi biasa
-        $jumlah_bayar = $request->input('jumlah_bayar');
-
-        if ($jumlah_bayar <= 0 || $jumlah_bayar > ($tagihan->tagihan - $tagihan->jumlah_dibayar)) {
-            Alert::error('Error', 'Jumlah bayar tidak valid');
+        if ($result['success']) {
+            Alert::success('Sukses', $result['message']);
             return redirect()->route('buka-tagihan');
         }
 
-        // Tambahkan cicilan
-        $tagihan->jumlah_dibayar += $jumlah_bayar;
-        $tagihan->save();
-
-        // Cek apakah sudah lunas setelah cicilan ditambahkan
-        if ($tagihan->jumlah_dibayar >= $tagihan->tagihan) {
-            $tagihan->status = 'LS';
-            $tagihan->tgl_bayar = now();
-            $tagihan->save();
-
-            Alert::success('Sukses', 'Tagihan telah lunas');
-            return redirect()->route('lunas-tagihan');
-        }
-
-        Alert::success('Sukses', 'Pembayaran berhasil, masih ada sisa tagihan');
+        Alert::error('Error', $result['message']);
         return redirect()->route('buka-tagihan');
     }
 
-
-    public function lunasTagihan()
+    /**
+     * Tampilkan halaman tagihan lunas.
+     */
+    public function lunasTagihan(Request $request)
     {
-        return view('tagihan.lunas-tagihan');
+        $bulanList = Bulan::all();
+        $tahunList = range(2021, date('Y') + 5);
+
+        // Default ke bulan dan tahun saat ini
+        $bulan = $request->input('bulan', date('n'));
+        $tahun = $request->input('tahun', date('Y'));
+
+        // Ambil data tagihan lunas
+        $tagihanList = Tagihan::getDataByMonthYearAndStatus($bulan, $tahun, 'LS');
+
+        return view('tagihan.lunas-tagihan', compact('bulanList', 'tahunList', 'tagihanList', 'bulan', 'tahun'));
     }
 
+    /**
+     * Cetak struk pembayaran.
+     */
     public function cetakStruk($id)
     {
-        // Temukan tagihan berdasarkan ID
         $tagihan = Tagihan::find($id);
 
-        // Pastikan tagihan ditemukan
         if (!$tagihan) {
             return redirect()->route('buka-tagihan')->with('error', 'Tagihan tidak ditemukan');
         }
 
-        // Render view to HTML
         $html = View::make('tagihan.cetak-struk', compact('tagihan'))->render();
 
-        // Buat objek Dompdf
         $dompdf = new Dompdf();
-
-        // Set base path untuk DOMPDF
         $options = $dompdf->getOptions();
         $options->set('isRemoteEnabled', true);
         $dompdf->setOptions($options);
 
-        // Load HTML content
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
-
-        // Render PDF
         $dompdf->render();
 
-        // Tampilkan PDF dengan memberikan nama file pada saat streaming
         return $dompdf->stream('struk_pembayaran.pdf');
     }
 
+    /**
+     * Tampilkan pelanggan yang sudah lunas.
+     * 
+     * Menggunakan TagihanService::getMonthNames() untuk nama bulan.
+     */
     public function lunas(Request $request)
     {
-        // Ambil bulan dan tahun yang dipilih, jika tidak ada, gunakan bulan dan tahun saat ini
         $selectedMonth = $request->query('bulan', Carbon::now()->month);
         $selectedYear = $request->query('tahun', Carbon::now()->year);
-
-        // Define the month names
-        $namaBulan = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember',
-        ];
+        $namaBulan = TagihanService::getMonthNames();
 
         $pelangganLunas = Pelanggan::where('status', 'aktif')
             ->whereHas('tagihan', function ($query) use ($selectedMonth, $selectedYear) {
                 $query->where('status', 'LS')
-                    ->where('bulan', $selectedMonth) // Filter berdasarkan bulan
-                    ->where('tahun', $selectedYear); // Filter berdasarkan tahun
+                    ->where('bulan', $selectedMonth)
+                    ->where('tahun', $selectedYear);
             })->get();
 
         return view('tagihan.lunas', compact('pelangganLunas', 'selectedMonth', 'selectedYear', 'namaBulan'));
     }
 
+    /**
+     * Tampilkan pelanggan yang belum lunas.
+     * 
+     * Menggunakan TagihanService::getMonthNames() untuk nama bulan.
+     */
     public function belumLunas(Request $request)
     {
-        // Ambil bulan dan tahun yang dipilih, jika tidak ada, gunakan bulan dan tahun saat ini
         $selectedMonth = $request->query('bulan', Carbon::now()->month);
         $selectedYear = $request->query('tahun', Carbon::now()->year);
-
-        // Define the month names
-        $namaBulan = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember',
-        ];
+        $namaBulan = TagihanService::getMonthNames();
 
         $pelangganBelumLunas = Pelanggan::where('status', 'aktif')
             ->whereDoesntHave('tagihan', function ($query) use ($selectedMonth, $selectedYear) {
                 $query->where('status', 'LS')
-                    ->where('bulan', $selectedMonth) // Filter berdasarkan bulan
-                    ->where('tahun', $selectedYear); // Filter berdasarkan tahun
+                    ->where('bulan', $selectedMonth)
+                    ->where('tahun', $selectedYear);
             })
             ->orWhere(function ($query) use ($selectedMonth, $selectedYear) {
                 $query->whereHas('tagihan', function ($query) use ($selectedMonth, $selectedYear) {
                     $query->where('status', '!=', 'LS')
-                        ->where('bulan', $selectedMonth) // Filter berdasarkan bulan
-                        ->where('tahun', $selectedYear); // Filter berdasarkan tahun
+                        ->where('bulan', $selectedMonth)
+                        ->where('tahun', $selectedYear);
                 });
             })->get();
 
         return view('tagihan.belumLunas', compact('pelangganBelumLunas', 'selectedMonth', 'selectedYear', 'namaBulan'));
     }
 
-
+    /**
+     * Hapus tagihan.
+     */
     public function deleteTagihan($id)
     {
-        // Temukan tagihan berdasarkan ID
         $tagihan = Tagihan::find($id);
 
-        // Cek apakah tagihan ditemukan
         if (!$tagihan) {
             Alert::error('Error', 'Tagihan tidak ditemukan');
             return redirect()->route('buka-tagihan');
         }
 
-        // Hapus tagihan
         $tagihan->delete();
 
         Alert::success('Sukses', 'Tagihan berhasil dihapus');
         return redirect()->route('buka-tagihan');
     }
 
+    /**
+     * Generate tagihan bulanan otomatis.
+     * 
+     * Menggunakan TagihanService untuk business logic.
+     */
     public function generateMonthlyBills()
     {
-        $bulan = Carbon::now()->format('m'); // Ambil bulan saat ini
-        $tahun = Carbon::now()->format('Y'); // Ambil tahun saat ini
+        $bulan = (int) Carbon::now()->format('m');
+        $tahun = (int) Carbon::now()->format('Y');
 
         Log::info("🔄 Memulai pembuatan tagihan otomatis untuk bulan {$bulan} tahun {$tahun}");
 
-        $pelangganAktif = Pelanggan::with('paket')->where('status', 'aktif')->get();
-        foreach ($pelangganAktif as $pelanggan) {
-            // Cek apakah tagihan sudah ada di bulan dan tahun ini
-            $existingTagihan = Tagihan::where('bulan', $bulan)
-                ->where('tahun', $tahun)
-                ->where('id_pelanggan', $pelanggan->id_pelanggan)
-                ->first();
+        $result = $this->tagihanService->generateBillsForAllActiveCustomers($bulan, $tahun);
 
-            if ($existingTagihan) {
-                Log::warning("⚠️ Tagihan sudah ada untuk pelanggan {$pelanggan->id_pelanggan}. Melewati...");
-                continue;
-            }
-
-            if ($pelanggan->paket) {
-                $tarifPelanggan = $pelanggan->paket->tarif;
-
-                // Buat tagihan baru
-                Tagihan::create([
-                    'bulan' => $bulan,
-                    'tahun' => $tahun,
-                    'id_pelanggan' => $pelanggan->id_pelanggan,
-                    'tagihan' => $tarifPelanggan,
-                    'status' => 'BL',
-                ]);
-
-                Log::info("✅ Tagihan berhasil dibuat untuk pelanggan {$pelanggan->id_pelanggan}");
-            } else {
-                Log::warning("⚠️ Pelanggan {$pelanggan->id_pelanggan} tidak memiliki paket. Melewati...");
-            }
-        }
-
-        return response()->json(['success' => true, 'message' => 'Tagihan otomatis berhasil dibuat']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Tagihan otomatis berhasil dibuat',
+            'data' => $result
+        ]);
     }
 
+    /**
+     * Rollback tagihan dari Lunas ke Belum Lunas.
+     */
+    public function rollbackTagihan($id)
+    {
+        try {
+            $tagihan = Tagihan::findOrFail($id);
+            
+            // Reset status ke Belum Lunas
+            $tagihan->status = 'BL';
+            $tagihan->jumlah_dibayar = 0;
+            $tagihan->save();
+
+            Alert::success('Berhasil', 'Tagihan berhasil di-rollback ke Belum Lunas');
+        } catch (\Exception $e) {
+            Log::error('Error rollback tagihan', ['error' => $e->getMessage()]);
+            Alert::error('Error', 'Gagal rollback tagihan: ' . $e->getMessage());
+        }
+
+        return redirect()->route('lunas-tagihan');
+    }
 }
-
-
-
-
-

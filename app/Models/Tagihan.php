@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tagihan extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'tagihan';
     protected $primaryKey = 'id';
@@ -39,11 +40,16 @@ class Tagihan extends Model
     }
 
 
-    public static function getDataByMonthYearAndStatus($bulan, $tahun, $status)
+    public static function getDataByMonthYearAndStatus($bulan, $tahun, $status = null)
     {
-        return static::where('bulan', $bulan)
-            ->where('tahun', $tahun)
-            ->where('status', $status)
-            ->get();
+        $query = static::where('bulan', $bulan)
+            ->where('tahun', $tahun);
+        
+        // Filter status hanya jika tidak null
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+        
+        return $query->get();
     }
 }

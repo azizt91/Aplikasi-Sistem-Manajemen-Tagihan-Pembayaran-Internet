@@ -1,4 +1,4 @@
-{{-- @extends('kerangka.master')
+{{-- @extends('layouts.master')
 @section('title', 'Tagihan Lunas')
 
 @section('content')
@@ -88,7 +88,7 @@
 </div>
 @endsection --}}
 
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title', 'Tagihan Lunas')
 
 @section('content')

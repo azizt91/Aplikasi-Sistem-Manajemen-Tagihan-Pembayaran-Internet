@@ -47,7 +47,6 @@ use Illuminate\Support\Str;
                 'email' => !empty(trim($row['email'])) ? trim($row['email']) : 'no-email@example.com',
                 'password' => !empty(trim($row['password'])) ? trim($row['password']) : '12345678',
                 'status' => strtolower($row['status']) == 'aktif' ? 'aktif' : 'nonaktif',
-                'jatuh_tempo' => $row['jatuh_tempo'],
                 'tanggal_pasang' => is_numeric($row['tanggal_pasang'])
                         ? Carbon::createFromFormat('Y-m-d', Carbon::createFromTimestamp(((int)$row['tanggal_pasang'] - 25569) * 86400)->format('Y-m-d'))
                         : Carbon::createFromFormat('Y-m-d', trim($row['tanggal_pasang']))->format('Y-m-d'),

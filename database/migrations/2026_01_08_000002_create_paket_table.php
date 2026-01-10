@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * Migration untuk membuat tabel paket.
+ * Menyimpan data paket internet dengan tarif.
+ */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('paket', function (Blueprint $table) {
+            $table->string('id_paket', 6)->primary();
+            $table->string('paket', 20);
+            $table->integer('tarif');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('paket');
+    }
+};

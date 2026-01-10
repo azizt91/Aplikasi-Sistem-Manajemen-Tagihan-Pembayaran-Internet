@@ -1,4 +1,4 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title')
 @section('content')
 
@@ -64,6 +64,13 @@
                                     <option value="nonaktif" {{ $pelanggan->status == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                                 </select>
                             </div>
+                            
+                            <div class="mb-6" id="tanggal_cabut_wrapper" style="{{ $pelanggan->status == 'nonaktif' ? '' : 'display:none;' }}">
+                                <label class="form-label" for="tanggal_cabut">Tanggal Cabut <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="tanggal_cabut" name="tanggal_cabut" 
+                                    value="{{ $pelanggan->tanggal_cabut ?? '' }}">
+                                <small class="form-text text-muted">Tanggal pelanggan dicabut/dinonaktifkan</small>
+                            </div>
                         @endisset
                         <div class="mb-6">
                             <label class="form-label" for="id_paket">Paket</label>
@@ -75,10 +82,6 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-                        <div class="mb-6">
-                            <label class="form-label" for="jatuh_tempo">Jatuh Tempo</label>
-                            <input type="text" class="form-control" id="jatuh_tempo" name="jatuh_tempo" placeholder="Contoh:Tanggal 20" value="{{ isset($pelanggan) ? $pelanggan->jatuh_tempo : '' }}">
                         </div>
                         <div class="mb-6">
                             <label class="form-label" for="tanggal_pasang">Tanggal Pasang</label>
@@ -201,6 +204,24 @@ $(document).ready(function() {
     if ($('#ip_address').val()) {
         $('#ip_address').trigger('input');
     }
+    
+    // Show/hide tanggal_cabut based on status
+    $('#status').on('change', function() {
+        const wrapper = $('#tanggal_cabut_wrapper');
+        const tanggalCabut = $('#tanggal_cabut');
+        
+        if ($(this).val() === 'nonaktif') {
+            wrapper.slideDown();
+            // Set today's date if empty
+            if (!tanggalCabut.val()) {
+                const today = new Date().toISOString().split('T')[0];
+                tanggalCabut.val(today);
+            }
+        } else {
+            wrapper.slideUp();
+            tanggalCabut.val(''); // Clear when status is aktif
+        }
+    });
 });
 </script>
 @endpush

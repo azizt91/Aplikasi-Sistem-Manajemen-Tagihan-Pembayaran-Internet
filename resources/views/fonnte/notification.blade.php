@@ -1,13 +1,19 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title', 'Pengaturan Notifikasi WhatsApp')
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Pengaturan /</span> Notifikasi Pelanggan
+    </h4>
+
+    <!-- Card 1: Notifikasi Tagihan (Reminder) -->
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Pengaturan Notifikasi Pelanggan</h5>
+            <h5 class="mb-0"><i class="bx bx-envelope me-2"></i>Notifikasi Tagihan (Reminder)</h5>
         </div>
             <div class="card-body">
+                <p class="text-muted mb-3">Kirim pengingat tagihan ke pelanggan yang belum bayar</p>
                 <form method="POST" action="{{ route('fonnte.notification.saveSettings') }}">
                     @csrf
 
@@ -16,7 +22,7 @@
                         <input type="hidden" name="is_active" value="0">
                         <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
                             {{ old('is_active', $setting->is_active ?? false) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="is_active">Aktifkan Notifikasi Otomatis</label>
+                        <label class="form-check-label" for="is_active"><strong>Aktifkan Notifikasi Otomatis</strong></label>
                     </div>
 
                     {{-- Opsi Pengiriman --}}
@@ -39,20 +45,21 @@
 
                     <div class="mb-4">
                         <label for="custom_message" class="form-label">Isi Pesan</label>
-                        <textarea class="form-control" id="custom_message" name="custom_message" rows="10" required>{{ old('custom_message', $setting->custom_message ?? $defaultMessage) }}</textarea>
+                        <textarea class="form-control" id="custom_message" name="custom_message" rows="8" required>{{ old('custom_message', $setting->custom_message ?? $defaultMessage) }}</textarea>
                         <small class="form-text text-muted">
-                            Variabel yang dapat digunakan: <code>@{{nama}}</code>, <code>@{{id_pelanggan}}</code>, <code>@{{tagihan}}</code>, <code>@{{periode}}</code>
+                            Variabel: <code>@{{nama}}</code>, <code>@{{id_pelanggan}}</code>, <code>@{{tagihan}}</code>, <code>@{{periode}}</code>
                         </small>
                     </div>
 
                     {{-- Tombol Simpan dan Kirim --}}
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bx bx-save me-1"></i> Simpan Pengaturan
+                            <i class="bx bx-save me-1"></i> Simpan
                         </button>
                 </form>
-                <form method="POST" action="{{ route('fonnte.notification.send') }}" onsubmit="return confirm('Kirim pesan sekarang ke pelanggan sesuai pengaturan?')">
+                <form method="POST" action="{{ route('fonnte.notification.send') }}" onsubmit="return confirm('Kirim pesan sekarang ke semua pelanggan yang belum bayar?\n\nCatatan: Pengiriman dilakukan dengan jeda 3-5 detik per pesan untuk menghindari spam detection.')">
                     @csrf
+                    <input type="hidden" name="force_send" value="1">
                     <button type="submit" class="btn btn-success">
                         <i class="bx bx-send me-1"></i> Kirim Sekarang
                     </button>
@@ -60,6 +67,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Card 2: Notifikasi Pembayaran Lunas -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bx bx-check-circle me-2"></i>Notifikasi Pembayaran Lunas</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-3">Kirim otomatis saat admin mengubah status tagihan menjadi LUNAS</p>
+            <form action="{{ route('fonnte.notification.savePaymentSettings') }}" method="POST">
+                @csrf
+
+                <!-- Enable/Disable -->
+                <div class="form-check form-switch mb-4">
+                    <input type="hidden" name="payment_notification_enabled" value="0">
+                    <input class="form-check-input" type="checkbox" id="payment_notification_enabled" 
+                        name="payment_notification_enabled" value="1"
+                        {{ settings('payment_notification_enabled') == '1' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="payment_notification_enabled">
+                        <strong>Aktifkan Notifikasi Pembayaran Lunas</strong>
+                    </label>
+                </div>
+
+                <!-- Message Template -->
+                @php
+                    $defaultPaymentMessage = "Halo {nama}! 👋\n\n✅ *PEMBAYARAN BERHASIL*\n\nTerima kasih, pembayaran tagihan internet Anda telah kami terima:\n\n📋 *Detail Pembayaran:*\n• ID Pelanggan: {id_pelanggan}\n• Periode: {bulan} {tahun}\n• Nominal: {nominal}\n• Tanggal Bayar: {tgl_bayar}\n• Paket: {paket}\n\nLayanan internet Anda akan terus aktif. Terima kasih telah menggunakan layanan kami! 🙏\n\nSalam,\n{app_name}";
+                @endphp
+
+                <div class="mb-3">
+                    <label class="form-label">Template Pesan</label>
+                    <textarea class="form-control" id="payment_notification_message" name="payment_notification_message" 
+                        rows="8">{{ old('payment_notification_message', settings('payment_notification_message') ?? $defaultPaymentMessage) }}</textarea>
+                </div>
+
+                <!-- Variable Guide -->
+                <div class="alert alert-info mb-4">
+                    <strong><i class="bx bx-info-circle me-1"></i>Variabel:</strong>
+                    <code>{nama}</code>, <code>{id_pelanggan}</code>, <code>{bulan}</code>, <code>{tahun}</code>, 
+                    <code>{nominal}</code>, <code>{tgl_bayar}</code>, <code>{paket}</code>, <code>{app_name}</code>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bx bx-save me-1"></i>Simpan Pengaturan
+                </button>
+            </form>
+        </div>
+    </div>
+
     @include('sweetalert::alert')
 </div>
 

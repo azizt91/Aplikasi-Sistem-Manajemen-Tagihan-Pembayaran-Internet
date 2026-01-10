@@ -9,84 +9,103 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class SettingController extends Controller
+{
+    public function edit()
     {
-        public function edit()
-        {
-            return view('settings');
+        return view('settings');
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'app_name' => 'nullable|string|max:255',
+            'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,ico|max:2048',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'app_link' => 'nullable|url|max:255',
+            'pwa_short_name' => 'nullable|string|max:20',
+            'pwa_description' => 'nullable|string|max:255',
+            'pwa_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        // PENGATURAN UMUM
+        if ($request->app_name) {
+            Setting::updateOrCreate(['key' => 'app_name'], ['value' => $request->app_name]);
+            // Also update legacy keys for backward compatibility
+            Setting::updateOrCreate(['key' => 'app_name_admin'], ['value' => $request->app_name]);
+            Setting::updateOrCreate(['key' => 'app_name_pelanggan'], ['value' => $request->app_name]);
+            Setting::updateOrCreate(['key' => 'sidebar_text'], ['value' => $request->app_name]);
+            Setting::updateOrCreate(['key' => 'pwa_name'], ['value' => $request->app_name]);
         }
 
-        public function update(Request $request)
-        {
-            $request->validate([
-                'favicon' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'logo_admin' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'logo_pelanggan' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'sidebar_logo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'receipt_logo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'app_name_admin' => 'string|max:255',
-                'app_name_pelanggan' => 'string|max:255',
-                'sidebar_text' => 'string|max:255',
-                'company_address' => 'string|max:255',
-                'whatsapp_number' => 'string|max:255',
-                'pwa_name' => 'string|max:255',
-                'pwa_short_name' => 'string|max:255',
-                'pwa_description' => 'string|max:255',
-                'pwa_logo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
+        if ($request->hasFile('app_logo')) {
+            $logoPath = $request->file('app_logo')->store('public/logos');
+            Setting::updateOrCreate(['key' => 'app_logo'], ['value' => $logoPath]);
+            // Also update legacy keys for backward compatibility
+            Setting::updateOrCreate(['key' => 'logo_admin'], ['value' => $logoPath]);
+            Setting::updateOrCreate(['key' => 'logo_pelanggan'], ['value' => $logoPath]);
+            Setting::updateOrCreate(['key' => 'sidebar_logo'], ['value' => $logoPath]);
+        }
 
-            if ($request->hasFile('favicon')) {
-                $faviconPath = $request->file('favicon')->store('public/icons');
-                Setting::updateOrCreate(['key' => 'favicon'], ['value' => $faviconPath]);
-            }
+        if ($request->hasFile('favicon')) {
+            $faviconPath = $request->file('favicon')->store('public/icons');
+            Setting::updateOrCreate(['key' => 'favicon'], ['value' => $faviconPath]);
+        }
 
-            if ($request->hasFile('logo_admin')) {
-                $logoAdminPath = $request->file('logo_admin')->store('public/logos');
-                Setting::updateOrCreate(['key' => 'logo_admin'], ['value' => $logoAdminPath]);
-            }
-
-            if ($request->hasFile('logo_pelanggan')) {
-                $logoPelangganPath = $request->file('logo_pelanggan')->store('public/logos');
-                Setting::updateOrCreate(['key' => 'logo_pelanggan'], ['value' => $logoPelangganPath]);
-            }
-
-            if ($request->hasFile('sidebar_logo')) {
-                $sidebarLogoPath = $request->file('sidebar_logo')->store('public/logos');
-                Setting::updateOrCreate(['key' => 'sidebar_logo'], ['value' => $sidebarLogoPath]);
-            }
-
-            if ($request->hasFile('receipt_logo')) {
-                $receiptLogoPath = $request->file('receipt_logo')->store('public/logos');
-                Setting::updateOrCreate(['key' => 'receipt_logo'], ['value' => $receiptLogoPath]);
-            }
-
-            Setting::updateOrCreate(['key' => 'app_name_admin'], ['value' => $request->app_name_admin]);
-            Setting::updateOrCreate(['key' => 'app_name_pelanggan'], ['value' => $request->app_name_pelanggan]);
-            Setting::updateOrCreate(['key' => 'sidebar_text'], ['value' => $request->sidebar_text]);
-            Setting::updateOrCreate(['key' => 'company_address'], ['value' => $request->company_address]);
+        if ($request->whatsapp_number) {
             Setting::updateOrCreate(['key' => 'whatsapp_number'], ['value' => $request->whatsapp_number]);
+        }
 
-            // Tambahkan kode ini untuk menyimpan pengaturan PWA
-            Setting::updateOrCreate(['key' => 'pwa_name'], ['value' => $request->pwa_name]);
+        if ($request->app_link) {
+            Setting::updateOrCreate(['key' => 'app_link'], ['value' => $request->app_link]);
+        }
+
+        // PENGATURAN PELANGGAN
+        if ($request->customer_id_prefix) {
+            Setting::updateOrCreate(['key' => 'customer_id_prefix'], ['value' => strtoupper($request->customer_id_prefix)]);
+        }
+
+        if ($request->customer_email_prefix) {
+            Setting::updateOrCreate(['key' => 'customer_email_prefix'], ['value' => strtolower($request->customer_email_prefix)]);
+        }
+
+        if ($request->customer_email_domain) {
+            Setting::updateOrCreate(['key' => 'customer_email_domain'], ['value' => strtolower($request->customer_email_domain)]);
+        }
+
+        if ($request->customer_default_password) {
+            Setting::updateOrCreate(['key' => 'customer_default_password'], ['value' => $request->customer_default_password]);
+        }
+
+        // PENGATURAN PWA
+        if ($request->pwa_short_name) {
             Setting::updateOrCreate(['key' => 'pwa_short_name'], ['value' => $request->pwa_short_name]);
+        }
+
+        if ($request->pwa_description) {
             Setting::updateOrCreate(['key' => 'pwa_description'], ['value' => $request->pwa_description]);
+        }
 
-            if ($request->hasFile('pwa_logo')) {
-                $pwaLogoPath = $request->file('pwa_logo')->store('public/logos');
-                Setting::updateOrCreate(['key' => 'pwa_logo'], ['value' => $pwaLogoPath]);
-            }
+        if ($request->hasFile('pwa_logo')) {
+            $pwaLogoPath = $request->file('pwa_logo')->store('public/logos');
+            Setting::updateOrCreate(['key' => 'pwa_logo'], ['value' => $pwaLogoPath]);
+        }
 
-            // Update manifest.json
-            $manifest = json_decode(File::get(public_path('manifest.json')), true);
-            $manifest['name'] = $request->pwa_name;
-            $manifest['short_name'] = $request->pwa_short_name;
-            $manifest['description'] = $request->pwa_description;
+        // Update manifest.json for PWA
+        $manifestPath = public_path('manifest.json');
+        if (File::exists($manifestPath)) {
+            $manifest = json_decode(File::get($manifestPath), true);
+            $manifest['name'] = $request->app_name ?? ($manifest['name'] ?? 'App');
+            $manifest['short_name'] = $request->pwa_short_name ?? ($manifest['short_name'] ?? 'App');
+            $manifest['description'] = $request->pwa_description ?? ($manifest['description'] ?? '');
 
             if (isset($pwaLogoPath)) {
                 $manifest['icons'][0]['src'] = Storage::url($pwaLogoPath);
             }
-            File::put(public_path('manifest.json'), json_encode($manifest, JSON_PRETTY_PRINT));
-
-            Alert::success('Sukses', 'Pengaturan berhasil diperbarui');
-            return redirect()->route('settings.edit');
+            File::put($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT));
         }
+
+        Alert::success('Sukses', 'Pengaturan berhasil diperbarui');
+        return redirect()->route('settings.edit');
     }
+}

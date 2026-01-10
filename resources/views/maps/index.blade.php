@@ -1,4 +1,4 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title','Maps Pelanggan & Network Status')
 
 @section('content')
@@ -190,6 +190,21 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMarkers();
     }
 
+    // Get RX Power badge class based on signal strength
+    function getRxPowerClass(rxPower) {
+        if (!rxPower) return 'bg-secondary';
+        
+        // Extract numeric value from string like "-18.5 dBm"
+        const value = parseFloat(rxPower);
+        
+        if (isNaN(value)) return 'bg-secondary';
+        
+        // Color based on signal strength
+        if (value >= -20) return 'bg-success'; // Good signal
+        if (value >= -25) return 'bg-warning text-dark'; // Medium signal
+        return 'bg-danger'; // Weak signal
+    }
+
     // Create custom marker icon based on status
     function createMarkerIcon(status) {
         let color;
@@ -272,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     let popupContent = `
-                        <div style="min-width: 220px;">
+                        <div style="min-width: 220px;" id="popup-${m.id}">
                             <h6 class="mb-2"><strong>${m.name}</strong></h6>
                             <div class="mb-2">
                                 <small><strong>Status:</strong>
@@ -280,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </small>
                             </div>
                             ${m.ip_address ? `<small><strong>IP:</strong> ${m.ip_address}</small><br>` : '<small class="text-warning"><strong>IP:</strong> Not set</small><br>'}
+                            <div id="rxpower-${m.id}"><small class="text-muted"><i class="bx bx-loader-alt bx-spin"></i> Loading RX Power...</small></div>
                             ${m.last_seen ? `<small><strong>Last Seen:</strong> ${new Date(m.last_seen).toLocaleString('id-ID')}</small><br>` : ''}
                             <div class="d-flex align-items-center justify-content-between mt-2">
                                 <small><strong>Koordinat:</strong> ${m.lat}, ${m.lng}</small>
@@ -294,6 +310,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
                     marker.bindPopup(popupContent);
+                    
+                    // Fetch RX Power when popup opens
+                    marker.on('popupopen', function() {
+                        const rxPowerEl = document.getElementById(`rxpower-${m.id}`);
+                        if (rxPowerEl && m.ip_address) {
+                            fetch(`/maps/rx-power/${m.id}`)
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.enabled === false) {
+                                        rxPowerEl.innerHTML = '';
+                                    } else if (data.rx_power !== null) {
+                                        rxPowerEl.innerHTML = `<small><strong>RX Power:</strong> <span class="badge ${getRxPowerClass(data.rx_power)}">${data.rx_power}</span></small><br>`;
+                                    } else {
+                                        rxPowerEl.innerHTML = '<small class="text-muted"><strong>RX Power:</strong> N/A</small><br>';
+                                    }
+                                })
+                                .catch(err => {
+                                    rxPowerEl.innerHTML = '';
+                                });
+                        } else if (rxPowerEl) {
+                            rxPowerEl.innerHTML = '';
+                        }
+                    });
+                    
                     markers.push(marker);
                 });
 

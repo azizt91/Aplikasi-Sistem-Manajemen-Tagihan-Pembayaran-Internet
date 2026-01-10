@@ -49,9 +49,20 @@ class FonnteNotificationController extends Controller
 
         $token = $fonnte->token;
         $today = now();
-        $pelanggans = Pelanggan::all();
+        
+        // Hanya ambil pelanggan aktif yang punya tagihan belum lunas
+        $pelanggans = Pelanggan::where('status', 'aktif')
+            ->whereHas('tagihan', function($query) use ($today) {
+                $query->where('bulan', intval($today->month))
+                    ->where('tahun', intval($today->year))
+                    ->where('status', 'BL');
+            })
+            ->get();
 
-        foreach ($pelanggans as $pelanggan) {
+        $sentCount = 0;
+        $failedCount = 0;
+
+        foreach ($pelanggans as $index => $pelanggan) {
             $shouldSend = false;
 
             // Validasi opsi pengiriman
@@ -64,20 +75,19 @@ class FonnteNotificationController extends Controller
                     break;
             }
 
+            // Jika tombol "Kirim Sekarang" ditekan, kirim tanpa cek tanggal
+            if (request()->has('force_send')) {
+                $shouldSend = true;
+            }
+
             // Ambil tagihan yang sesuai dengan bulan ini
             $tagihan = Tagihan::where('id_pelanggan', $pelanggan->id_pelanggan)
-                ->where('bulan', intval($today->month)) // Pastikan bulan dalam format angka (1-12)
-                ->where('tahun', intval($today->year))  // Tahun tetap sama
-                ->where('status', 'BL') // Hanya cari tagihan yang belum dibayar
+                ->where('bulan', intval($today->month))
+                ->where('tahun', intval($today->year))
+                ->where('status', 'BL')
                 ->first();
 
-            Log::info("📜 Status tagihan untuk {$pelanggan->nama}: " . ($tagihan ? "✅ Ada, Status: {$tagihan->status}" : "❌ Tidak Ada"));
-
-            if ($shouldSend && $tagihan && $tagihan->status !== 'LS') {
-                if (!$pelanggan->whatsapp) {
-                    continue;
-                }
-
+            if ($shouldSend && $tagihan && $pelanggan->whatsapp) {
                 // Pastikan nomor menggunakan format internasional
                 $whatsappNumber = preg_replace('/[^0-9]/', '', $pelanggan->whatsapp);
                 if (substr($whatsappNumber, 0, 2) !== "62") {
@@ -91,22 +101,68 @@ class FonnteNotificationController extends Controller
                     $setting->custom_message
                 );
 
-                // Kirim pesan via API Fonnte
-                $response = Http::withHeaders(['Authorization' => $token])
-                    ->asForm()
-                    ->post('https://api.fonnte.com/send', [
-                        'target' => $whatsappNumber,
-                        'message' => $message,
-                        'countryCode' => '62',
-                    ]);
+                try {
+                    // Kirim pesan via API Fonnte
+                    $response = Http::withHeaders(['Authorization' => $token])
+                        ->asForm()
+                        ->post('https://api.fonnte.com/send', [
+                            'target' => $whatsappNumber,
+                            'message' => $message,
+                            'countryCode' => '62',
+                        ]);
 
+                    if ($response->successful()) {
+                        $sentCount++;
+                        Log::info("✅ Pesan terkirim ke {$pelanggan->nama} ({$whatsappNumber})");
+                    } else {
+                        $failedCount++;
+                        Log::warning("❌ Gagal kirim ke {$pelanggan->nama}: " . $response->body());
+                    }
+                } catch (\Exception $e) {
+                    $failedCount++;
+                    Log::error("❌ Error kirim ke {$pelanggan->nama}: " . $e->getMessage());
+                }
+
+                // DELAY: Jeda 3-5 detik antara setiap pengiriman untuk menghindari spam detection
+                if ($index < count($pelanggans) - 1) {
+                    sleep(rand(3, 5));
+                }
             }
         }
 
-        Alert::success('Berhasil!', 'Pesan telah dikirim ke pelanggan.');
+        if ($sentCount > 0) {
+            Alert::success('Berhasil!', "Pesan terkirim ke {$sentCount} pelanggan" . ($failedCount > 0 ? ", {$failedCount} gagal" : ""));
+        } elseif ($failedCount > 0) {
+            Alert::error('Gagal!', "Semua {$failedCount} pesan gagal terkirim");
+        } else {
+            Alert::info('Info', 'Tidak ada pelanggan yang perlu dikirimi notifikasi hari ini');
+        }
+
         return back();
     }
 
+    /**
+     * Save payment notification settings
+     */
+    public function savePaymentSettings(Request $request)
+    {
+        // Save enable/disable setting
+        $enabled = $request->has('payment_notification_enabled') && $request->payment_notification_enabled == '1' ? '1' : '0';
+        \App\Models\Setting::updateOrCreate(
+            ['key' => 'payment_notification_enabled'],
+            ['value' => $enabled]
+        );
 
+        // Save message template
+        if ($request->filled('payment_notification_message')) {
+            \App\Models\Setting::updateOrCreate(
+                ['key' => 'payment_notification_message'],
+                ['value' => $request->payment_notification_message]
+            );
+        }
+
+        Alert::success('Berhasil', 'Pengaturan notifikasi pembayaran berhasil disimpan');
+        return back();
+    }
 
 }

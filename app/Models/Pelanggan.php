@@ -3,19 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class Pelanggan extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'pelanggan';
     protected $primaryKey = 'id_pelanggan';
     protected $keyType = 'string';
     public $incrementing = false;
     protected $fillable = [
-        'id_pelanggan','nama','alamat','whatsapp','email','password','password_hash','level','id_paket','jatuh_tempo','tanggal_pasang','status',
+        'id_pelanggan','nama','alamat','whatsapp','email','password','password_hash','level','id_paket','tanggal_pasang','tanggal_cabut','status',
         'latitude','longitude','house_image', 'profile_picture', 'ip_address', 'network_status', 'last_seen', 'mikrotik_notes'
     ];
 

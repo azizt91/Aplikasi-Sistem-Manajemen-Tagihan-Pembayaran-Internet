@@ -80,15 +80,15 @@
                 <a href="index.html" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
       {{-- <img src="{{ asset('template/img/sn-blue.png') }}" alt="Wifi Logo" style="width: 30px; height: 30px;"> --}}
-      <img src="{{ asset(Storage::url(settings('logo_pelanggan'))) }}" alt="Logo" style="width: 30px; height: 30px;">
+      <img src="{{ asset(Storage::url(settings('app_logo') ?? settings('logo_pelanggan'))) }}" alt="Logo" style="width: 30px; height: 30px;">
 
       </span>
                   {{-- <span class="app-brand-text demo text-body fw-bold">Selinggonet</span> --}}
-                  <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name_pelanggan') }}</span>
+                  <span class="app-brand-text demo text-body fw-bold">{{ settings('app_name') ?? settings('app_name_pelanggan') }}</span>
                 </a>
               </div>
               <!-- /Logo -->
-              <h4 class="mb-2">Welcome to {{ settings('app_name_pelanggan') }}! 👋</h4>
+              <h4 class="mb-2">Welcome to {{ settings('app_name') ?? settings('app_name_pelanggan') }}! 👋</h4>
               <p class="mb-4">Sistem Manajemen Tagihan Pembayaran Internet</p>
 
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('pelanggan.login') }}" onsubmit="return validateForm()">

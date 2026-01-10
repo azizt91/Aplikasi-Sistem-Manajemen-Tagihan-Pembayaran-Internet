@@ -568,4 +568,177 @@ class MikrotikService
     {
         $this->disconnect();
     }
+
+    /**
+     * Get queue simple statistics (per user based on target IP)
+     */
+    public function getQueueByIP($ipAddress)
+    {
+        if (!$this->connected) {
+            throw new Exception('Not connected to MikroTik');
+        }
+
+        try {
+            Log::info("Getting queue stats for IP: {$ipAddress}");
+            
+            $result = $this->comm('/queue/simple/print', [
+                '?target' => $ipAddress . '/32'
+            ]);
+            
+            if (empty($result)) {
+                $result = $this->comm('/queue/simple/print', [
+                    '?target' => $ipAddress
+                ]);
+            }
+            
+            return $result;
+        } catch (Exception $e) {
+            Log::error("Error getting queue for IP {$ipAddress}: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Get all simple queues
+     */
+    public function getAllQueues()
+    {
+        if (!$this->connected) {
+            throw new Exception('Not connected to MikroTik');
+        }
+        return $this->comm('/queue/simple/print');
+    }
+
+    /**
+     * Get PPPoE active connections
+     */
+    public function getPPPoEActive()
+    {
+        if (!$this->connected) {
+            throw new Exception('Not connected to MikroTik');
+        }
+        return $this->comm('/ppp/active/print');
+    }
+
+    /**
+     * Get user traffic data by IP from queue/pppoe
+     */
+    public function getUserTrafficByIP($ipAddress)
+    {
+        if (!$this->connected) {
+            throw new Exception('Not connected to MikroTik');
+        }
+
+        $trafficData = [
+            'ip' => $ipAddress,
+            'download' => 0,
+            'upload' => 0,
+            'status' => 'offline',
+            'uptime' => null,
+            'source' => null,
+            'name' => null
+        ];
+
+        try {
+            $queueResult = $this->getQueueByIP($ipAddress);
+            if (!empty($queueResult) && is_array($queueResult)) {
+                foreach ($queueResult as $queue) {
+                    if (isset($queue['bytes'])) {
+                        $bytes = explode('/', $queue['bytes']);
+                        if (count($bytes) >= 2) {
+                            $trafficData['download'] = (int)$bytes[0];
+                            $trafficData['upload'] = (int)$bytes[1];
+                            $trafficData['source'] = 'queue';
+                            $trafficData['status'] = 'online';
+                            $trafficData['name'] = $queue['name'] ?? null;
+                        }
+                    }
+                }
+            }
+
+            if ($trafficData['source'] === null) {
+                $pppoeActive = $this->getPPPoEActive();
+                if (!empty($pppoeActive) && is_array($pppoeActive)) {
+                    foreach ($pppoeActive as $session) {
+                        if (isset($session['address']) && $session['address'] === $ipAddress) {
+                            $trafficData['status'] = 'online';
+                            $trafficData['uptime'] = $session['uptime'] ?? null;
+                            $trafficData['source'] = 'pppoe';
+                            $trafficData['name'] = $session['name'] ?? null;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return $trafficData;
+        } catch (Exception $e) {
+            Log::error("Error getting user traffic for IP {$ipAddress}: " . $e->getMessage());
+            return $trafficData;
+        }
+    }
+    /**
+     * Get realtime traffic rate by IP from queue/simple
+     * Returns upload/download rate in bps
+     */
+    public function getTrafficRateByIP($ipAddress)
+    {
+        if (!$this->connected) {
+            throw new Exception('Not connected to MikroTik');
+        }
+
+        $rateData = [
+            'tx' => 0,
+            'rx' => 0,
+            'success' => false
+        ];
+
+        try {
+            // Query queue simple for rate
+            $queueResult = $this->getQueueByIP($ipAddress);
+            
+            if (!empty($queueResult) && is_array($queueResult)) {
+                foreach ($queueResult as $queue) {
+                    if (isset($queue['rate'])) {
+                        // rate format: upload/download (in bps)
+                        $rates = explode('/', $queue['rate']);
+                        if (count($rates) >= 2) {
+                            $rateData['tx'] = $this->parseRate($rates[0]); // upload
+                            $rateData['rx'] = $this->parseRate($rates[1]); // download
+                            $rateData['success'] = true;
+                        }
+                    }
+                }
+            }
+
+            return $rateData;
+        } catch (Exception $e) {
+            Log::error("Error getting traffic rate for IP {$ipAddress}: " . $e->getMessage());
+            return $rateData;
+        }
+    }
+
+    /**
+     * Parse rate string to integer (bps)
+     */
+    private function parseRate($rateStr)
+    {
+        $rateStr = trim($rateStr);
+        if (empty($rateStr) || $rateStr === '0') return 0;
+        
+        // Remove any non-numeric characters except for k, M, G
+        $multiplier = 1;
+        if (stripos($rateStr, 'k') !== false) {
+            $multiplier = 1000;
+            $rateStr = str_ireplace('k', '', $rateStr);
+        } elseif (stripos($rateStr, 'M') !== false) {
+            $multiplier = 1000000;
+            $rateStr = str_ireplace('M', '', $rateStr);
+        } elseif (stripos($rateStr, 'G') !== false) {
+            $multiplier = 1000000000;
+            $rateStr = str_ireplace('G', '', $rateStr);
+        }
+        
+        return (int)(floatval($rateStr) * $multiplier);
+    }
 }

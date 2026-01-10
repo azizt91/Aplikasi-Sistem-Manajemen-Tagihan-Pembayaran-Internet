@@ -84,7 +84,6 @@ class PelangganAuthController extends Controller
         // Siapkan default value jika tidak ada tagihan bulan ini
         $statusTagihan = $tagihanBulanIni->status ?? null;
         $nominalTagihanBulanIni = $tagihanBulanIni ? rupiah($tagihanBulanIni->tagihan) : null;
-        $jatuhTempo = $tagihanBulanIni && $statusTagihan === 'BL' ? $pelanggan->jatuh_tempo : null;
         $tglBayar = $tagihanBulanIni && $tagihanBulanIni->tgl_bayar
             ? Carbon::parse($tagihanBulanIni->tgl_bayar)->translatedFormat('d F Y')
             : null;
@@ -93,7 +92,6 @@ class PelangganAuthController extends Controller
             'pelanggan',
             'statusTagihan',
             'nominalTagihanBulanIni',
-            'jatuhTempo',
             'tglBayar',
             'tanggalPasang',
             'tagihanBulanIni',
@@ -269,6 +267,208 @@ class PelangganAuthController extends Controller
         $banks = Bank::all();
 
         return view('pelanggan.payment', compact('tagihan', 'channels', 'banks', 'config'));
+    }
+
+    /**
+     * Halaman Tagihan - Gabungan Belum Lunas & Sudah Lunas
+     */
+    public function tagihan()
+    {
+        $pelanggan = Auth::guard('pelanggan')->user();
+        $tagihanBelumLunas = $pelanggan->tagihan()->where('status', 'BL')->orderBy('created_at', 'desc')->get();
+        $tagihanSudahLunas = $pelanggan->tagihan()->where('status', 'LS')->orderBy('updated_at', 'desc')->get();
+        
+        return view('pelanggan.tagihan', compact('pelanggan', 'tagihanBelumLunas', 'tagihanSudahLunas'));
+    }
+
+    /**
+     * Halaman Pemakaian - Chart pemakaian internet
+     */
+    public function pemakaian()
+    {
+        $pelanggan = Auth::guard('pelanggan')->user();
+        
+        // Get MikroTik config (get first available, not just active)
+        $mikrotikConfig = \App\Models\MikrotikConfig::first();
+        $usageData = null;
+        $userTraffic = null;
+        $errorMessage = null;
+        
+        if ($mikrotikConfig && $pelanggan->ip_address) {
+            try {
+                $mikrotik = new \App\Services\MikrotikService();
+                $connected = $mikrotik->connect(
+                    $mikrotikConfig->ip_address,
+                    $mikrotikConfig->port,
+                    $mikrotikConfig->username,
+                    $mikrotikConfig->getDecryptedPasswordAttribute()
+                );
+                
+                if ($connected) {
+                    // Get per-user traffic data based on pelanggan IP
+                    $userTraffic = $mikrotik->getUserTrafficByIP($pelanggan->ip_address);
+                    
+                    // Get system resource for router uptime
+                    $systemResource = $mikrotik->getSystemResource();
+                    $routerUptime = 'N/A';
+                    if (is_array($systemResource) && count($systemResource) > 0) {
+                        foreach ($systemResource as $item) {
+                            if (is_array($item) && isset($item['uptime'])) {
+                                $routerUptime = $item['uptime'];
+                                break;
+                            }
+                        }
+                    }
+                    
+                    $usageData = [
+                        'download' => $this->formatBytes($userTraffic['download']),
+                        'upload' => $this->formatBytes($userTraffic['upload']),
+                        'uptime' => $userTraffic['uptime'] ?? $routerUptime,
+                        'status' => $userTraffic['status'],
+                        'source' => $userTraffic['source'],
+                        'name' => $userTraffic['name'],
+                        'download_raw' => $userTraffic['download'],
+                        'upload_raw' => $userTraffic['upload'],
+                    ];
+                    
+                    $mikrotik->disconnect();
+                }
+            } catch (\Exception $e) {
+                $errorMessage = $e->getMessage();
+                \Log::error('Pelanggan Pemakaian MikroTik Error: ' . $errorMessage);
+            }
+        } elseif (!$pelanggan->ip_address) {
+            $errorMessage = 'IP Address pelanggan belum diisi. Hubungi admin untuk mengisi data IP.';
+        }
+        
+        return view('pelanggan.pemakaian', compact('pelanggan', 'mikrotikConfig', 'usageData', 'errorMessage'));
+    }
+    
+    /**
+     * Format bytes to human readable
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        if ($bytes == 0) return '0 B';
+        
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        
+        $bytes /= pow(1024, $pow);
+        
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    /**
+     * API: Get realtime traffic data for chart
+     */
+    public function getTrafficData()
+    {
+        $pelanggan = Auth::guard('pelanggan')->user();
+        
+        if (!$pelanggan->ip_address) {
+            return response()->json(['success' => false, 'error' => 'No IP address']);
+        }
+        
+        $mikrotikConfig = \App\Models\MikrotikConfig::first();
+        
+        if (!$mikrotikConfig) {
+            return response()->json(['success' => false, 'error' => 'No MikroTik config']);
+        }
+        
+        try {
+            $mikrotik = new \App\Services\MikrotikService();
+            $connected = $mikrotik->connect(
+                $mikrotikConfig->ip_address,
+                $mikrotikConfig->port,
+                $mikrotikConfig->username,
+                $mikrotikConfig->getDecryptedPasswordAttribute()
+            );
+            
+            if ($connected) {
+                $rateData = $mikrotik->getTrafficRateByIP($pelanggan->ip_address);
+                $mikrotik->disconnect();
+                
+                return response()->json([
+                    'success' => true,
+                    'tx' => $rateData['tx'],
+                    'rx' => $rateData['rx'],
+                    'timestamp' => now()->format('H:i:s')
+                ]);
+            }
+            
+            return response()->json(['success' => false, 'error' => 'Failed to connect']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Halaman Pengumuman - Info dari admin
+     */
+    public function pengumuman()
+    {
+        $pelanggan = Auth::guard('pelanggan')->user();
+        
+        // Get announcements (using settings or separate table)
+        // For now, we'll create placeholder data
+        $pengumuman = collect([
+            (object)[
+                'id' => 1,
+                'judul' => 'Selamat Datang!',
+                'isi' => 'Terima kasih telah menggunakan layanan internet kami. Jika ada kendala, silakan hubungi customer service.',
+                'tipe' => 'info',
+                'created_at' => now()->subDays(1)
+            ],
+            (object)[
+                'id' => 2,
+                'judul' => 'Maintenance Jaringan',
+                'isi' => 'Akan ada pemeliharaan jaringan pada akhir pekan ini. Mohon maaf atas ketidaknyamanannya.',
+                'tipe' => 'maintenance',
+                'created_at' => now()->subDays(3)
+            ]
+        ]);
+        
+        return view('pelanggan.pengumuman', compact('pelanggan', 'pengumuman'));
+    }
+
+    /**
+     * Halaman Bantuan - FAQ & Contact
+     */
+    public function bantuan()
+    {
+        $pelanggan = Auth::guard('pelanggan')->user();
+        
+        // FAQ data
+        $faq = collect([
+            (object)[
+                'pertanyaan' => 'Bagaimana cara membayar tagihan?',
+                'jawaban' => 'Anda dapat membayar tagihan melalui menu Tagihan, pilih tagihan yang ingin dibayar, lalu pilih metode pembayaran (Transfer Bank/Virtual Account/E-Wallet).'
+            ],
+            (object)[
+                'pertanyaan' => 'Kenapa internet saya lambat?',
+                'jawaban' => 'Kecepatan internet bisa dipengaruhi oleh berbagai faktor seperti cuaca, jarak dari tower, atau penggunaan bandwidth yang tinggi. Jika masalah terus berlanjut, silakan hubungi teknisi kami.'
+            ],
+            (object)[
+                'pertanyaan' => 'Bagaimana cara upgrade paket?',
+                'jawaban' => 'Untuk upgrade paket, silakan hubungi customer service kami via WhatsApp atau datang langsung ke kantor kami.'
+            ],
+            (object)[
+                'pertanyaan' => 'Kapan tagihan saya harus dibayar?',
+                'jawaban' => 'Tagihan harus dibayar sebelum tanggal jatuh tempo yang tertera di dashboard Anda. Keterlambatan pembayaran dapat mengakibatkan pemutusan sementara layanan.'
+            ],
+            (object)[
+                'pertanyaan' => 'Bagaimana cara melihat riwayat pembayaran?',
+                'jawaban' => 'Anda dapat melihat riwayat pembayaran melalui menu "Riwayat Pembayaran" di sidebar.'
+            ]
+        ]);
+        
+        // Contact info from settings
+        $kontakCS = settings('whatsapp_number') ?? settings('whatsapp_admin') ?? '+6281234567890';
+        
+        return view('pelanggan.bantuan', compact('pelanggan', 'faq', 'kontakCS'));
     }
 
 }

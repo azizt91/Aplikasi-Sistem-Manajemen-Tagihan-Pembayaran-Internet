@@ -1,4 +1,4 @@
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title', 'Pengaturan Aplikasi')
 @section('content')
 <div class="col-md-12 col-12">

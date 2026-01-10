@@ -1,4 +1,4 @@
-{{-- @extends('kerangka.master')
+{{-- @extends('layouts.master')
 @section('title')
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -75,7 +75,7 @@
 </div>
 @endsection --}}
 
-@extends('kerangka.master')
+@extends('layouts.master')
 @section('title')
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">

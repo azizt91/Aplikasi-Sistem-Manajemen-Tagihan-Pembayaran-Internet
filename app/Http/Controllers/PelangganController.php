@@ -24,36 +24,43 @@ class PelangganController extends Controller
 
     public function index()
     {
-        $pelanggan = Pelanggan::all();
+        // Eager load paket untuk menghindari N+1 query
+        $pelanggan = Pelanggan::with('paket')->get();
         $paket = Paket::all();
         $status = ['aktif', 'nonaktif'];
         return view('pelanggan.index', compact('pelanggan', 'paket', 'status'));
-
     }
 
     public function aktif()
     {
-        $pelanggan = Pelanggan::where('status', 'aktif')->get();
+        // Eager load paket untuk menghindari N+1 query
+        $pelanggan = Pelanggan::with('paket')->where('status', 'aktif')->get();
         return view('pelanggan.aktif', compact('pelanggan'));
     }
 
     public function nonaktif()
     {
-        $pelanggan = Pelanggan::where('status', 'nonaktif')->get();
+        // Eager load paket untuk menghindari N+1 query
+        $pelanggan = Pelanggan::with('paket')->where('status', 'nonaktif')->get();
         return view('pelanggan.nonaktif', compact('pelanggan'));
     }
 
 
     public function tambah()
     {
-        // Generate ID Pelanggan dengan format C001
+        // Get settings for customer ID and email
+        $idPrefix = settings('customer_id_prefix') ?? 'C';
+        $emailPrefix = settings('customer_email_prefix') ?? 'cst';
+        $emailDomain = settings('customer_email_domain') ?? 'mail.com';
+        
+        // Generate ID Pelanggan with dynamic prefix
         $lastPelanggan = Pelanggan::orderBy('id_pelanggan', 'desc')->first();
-        $lastNumber = $lastPelanggan ? intval(substr($lastPelanggan->id_pelanggan, 1)) : 0;
-        $id_pelanggan = 'C' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        $lastNumber = $lastPelanggan ? intval(preg_replace('/[^0-9]/', '', $lastPelanggan->id_pelanggan)) : 0;
+        $id_pelanggan = $idPrefix . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
 
-        // Generate Email dengan format cst1@mail.com
+        // Generate Email with dynamic prefix and domain
         $lastEmailNumber = $lastPelanggan ? intval(filter_var($lastPelanggan->email, FILTER_SANITIZE_NUMBER_INT)) : 0;
-        $email = 'cst' . ($lastEmailNumber + 1) . '@mail.com';
+        $email = $emailPrefix . ($lastEmailNumber + 1) . '@' . $emailDomain;
 
         $paket = Paket::get();
         $status = 'aktif';
@@ -63,14 +70,20 @@ class PelangganController extends Controller
 
     public function simpan(Request $request)
     {
-        // Generate ID Pelanggan dengan format C001
+        // Get settings for customer ID, email, and password
+        $idPrefix = settings('customer_id_prefix') ?? 'C';
+        $emailPrefix = settings('customer_email_prefix') ?? 'cst';
+        $emailDomain = settings('customer_email_domain') ?? 'mail.com';
+        $defaultPassword = settings('customer_default_password') ?? '12345678';
+        
+        // Generate ID Pelanggan with dynamic prefix
         $lastPelanggan = Pelanggan::orderBy('id_pelanggan', 'desc')->first();
-        $lastNumber = $lastPelanggan ? intval(substr($lastPelanggan->id_pelanggan, 1)) : 0;
-        $id_pelanggan = 'C' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        $lastNumber = $lastPelanggan ? intval(preg_replace('/[^0-9]/', '', $lastPelanggan->id_pelanggan)) : 0;
+        $id_pelanggan = $idPrefix . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
 
-        // Generate Email dengan format cst1@mail.com
+        // Generate Email with dynamic prefix and domain
         $lastEmailNumber = $lastPelanggan ? intval(filter_var($lastPelanggan->email, FILTER_SANITIZE_NUMBER_INT)) : 0;
-        $email = 'cst' . ($lastEmailNumber + 1) . '@mail.com';
+        $email = $emailPrefix . ($lastEmailNumber + 1) . '@' . $emailDomain;
 
         // Format nomor WhatsApp dengan kode negara
         $whatsapp = $request->whatsapp;
@@ -82,8 +95,8 @@ class PelangganController extends Controller
             'ip_address' => 'nullable|ip|unique:pelanggan,ip_address',
         ]);//new
 
-        // Password acak
-        $pass_acak = "12345678";
+        // Password from settings
+        $pass_acak = $defaultPassword;
 
         // Data Pelanggan
         $data = [
@@ -96,7 +109,6 @@ class PelangganController extends Controller
             'password_hash' => Hash::make($pass_acak),
             'level' => 'User',
             'id_paket' => $request->id_paket,
-            'jatuh_tempo' => $request->jatuh_tempo,
             'tanggal_pasang' => $request->tanggal_pasang,
             'status' => $request->status ?? 'aktif',
             'latitude' => $request->latitude,
@@ -129,6 +141,7 @@ class PelangganController extends Controller
             'email' => 'required|email|unique:pelanggan,email,' . $id_pelanggan . ',id_pelanggan',
             'password' => 'nullable|min:8',
             'ip_address' => 'nullable|ip|unique:pelanggan,ip_address,' . $id_pelanggan . ',id_pelanggan',
+            'tanggal_cabut' => 'nullable|date',
         ]);//new
 
         $data = [
@@ -136,13 +149,14 @@ class PelangganController extends Controller
             'alamat' => $request->alamat,
             'whatsapp' => $request->whatsapp,
             'id_paket' => $request->id_paket,
-            'jatuh_tempo' => $request->jatuh_tempo,
             'tanggal_pasang' => $request->tanggal_pasang,
             'status' => $request->status,
             'email' => $request->email,
             'longitude' => $request->longitude,
             'latitude' => $request->latitude,
             'ip_address' => $request->ip_address,
+            // Handle tanggal_cabut based on status
+            'tanggal_cabut' => $request->status === 'nonaktif' ? $request->tanggal_cabut : null,
         ];
 
         // Jika ada password baru, update
@@ -415,10 +429,18 @@ class PelangganController extends Controller
     public function getNetworkStatusData()
     {
         try {
-            $totalCustomers = Pelanggan::where('status', 'aktif')->count();
-            $onlineCustomers = Pelanggan::where('status', 'aktif')->where('network_status', 'up')->count();
-            $offlineCustomers = Pelanggan::where('status', 'aktif')->where('network_status', 'down')->count();
-            $unknownCustomers = Pelanggan::where('status', 'aktif')->whereNull('network_status')->count();
+            // Optimized: Single query instead of 4 separate queries
+            $stats = Pelanggan::where('status', 'aktif')
+                ->selectRaw("COUNT(*) as total")
+                ->selectRaw("SUM(CASE WHEN network_status = 'up' THEN 1 ELSE 0 END) as online")
+                ->selectRaw("SUM(CASE WHEN network_status = 'down' THEN 1 ELSE 0 END) as offline")
+                ->selectRaw("SUM(CASE WHEN network_status IS NULL OR network_status = 'unknown' THEN 1 ELSE 0 END) as unknown")
+                ->first();
+
+            $totalCustomers = $stats->total ?? 0;
+            $onlineCustomers = $stats->online ?? 0;
+            $offlineCustomers = $stats->offline ?? 0;
+            $unknownCustomers = $stats->unknown ?? 0;
 
             return response()->json([
                 'success' => true,
