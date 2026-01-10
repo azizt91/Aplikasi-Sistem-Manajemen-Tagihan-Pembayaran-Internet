@@ -85,11 +85,18 @@ Salam,
             $message = $controller->getDefaultMessage();
         }
 
+        // Indonesian month names
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
+
         // Replace variables
         $replacements = [
             '{nama}' => $pelanggan->nama,
             '{id_pelanggan}' => $pelanggan->id_pelanggan,
-            '{bulan}' => $tagihan->bulan,
+            '{bulan}' => $namaBulan[$tagihan->bulan] ?? $tagihan->bulan,
             '{tahun}' => $tagihan->tahun,
             '{nominal}' => rupiah($tagihan->tagihan),
             '{tgl_bayar}' => \Carbon\Carbon::parse($tagihan->tgl_bayar)->translatedFormat('d F Y'),

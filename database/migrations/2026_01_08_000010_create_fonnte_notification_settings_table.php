@@ -14,9 +14,8 @@ return new class extends Migration
     {
         Schema::create('fonnte_notification_settings', function (Blueprint $table) {
             $table->id();
-            $table->boolean('is_active')->default(false);
-            $table->string('send_date_option', 255)->default('tanggal_pasang');
-            $table->text('custom_message');
+            $table->text('custom_message')->nullable();
+            $table->integer('delay_seconds')->default(10); // Delay between messages in seconds
             $table->timestamps();
         });
     }

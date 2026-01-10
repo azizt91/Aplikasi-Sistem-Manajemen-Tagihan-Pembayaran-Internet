@@ -235,7 +235,7 @@ Route::middleware('auth')->group(function () {
     // Fonnte Notification
     Route::get('/fonnte/notification', [FonnteNotificationController::class, 'index'])->name('fonnte.notification.index');
     Route::post('/fonnte/notification/save-settings', [FonnteNotificationController::class, 'saveSettings'])->name('fonnte.notification.saveSettings');
-    Route::post('/fonnte/notification/send', [FonnteNotificationController::class, 'sendNotifications'])->name('fonnte.notification.send');
+    Route::post('/fonnte/notification/send-selected', [FonnteNotificationController::class, 'sendSelectedNotifications'])->name('fonnte.notification.sendSelected');
     Route::post('/fonnte/notification/save-payment-settings', [FonnteNotificationController::class, 'savePaymentSettings'])->name('fonnte.notification.savePaymentSettings');
 
     // Pelanggan Import/Export

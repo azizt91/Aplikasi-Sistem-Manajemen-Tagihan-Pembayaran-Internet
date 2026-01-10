@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class FonnteNotificationSetting extends Model
 {
     use HasFactory;
-    protected $fillable = ['is_active', 'send_date_option', 'custom_message'];
+    protected $fillable = ['custom_message', 'delay_seconds'];
     public $timestamps = false;
 }
